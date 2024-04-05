@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { URL, errors } from '../../store';
+	import Button from '../Button.svelte';
 
 	async function getAuthURL() {
 		const url = `${$URL}/account/getauthurl`;
@@ -34,7 +35,7 @@
 <section>
 	<div class="card">
 		<div class="title">
-			<p>InboxZen will request the following permissions. 😊</p>
+			<p>InboxZen will request the following permissions.</p>
 		</div>
 		<ul>
 			<li>
@@ -56,9 +57,16 @@
 				>
 			</li>
 		</ul>
-		<button on:click|preventDefault={getAuthURL}>
-			<span>agree and continue 💪</span>
-		</button>
+		<Button
+			height={4}
+			width={50}
+			backgroundColor="#525FE1"
+			borderRadius={0.3}
+			color="rgb(255, 255, 255)"
+			padding={0.5}
+			text="agree and continue"
+			onClick={getAuthURL}
+		/>
 	</div>
 </section>
 
@@ -118,33 +126,6 @@
 						color: $black-1;
 					}
 				}
-			}
-		}
-
-		button {
-			border: none;
-			width: max-content;
-			padding: 1.5rem;
-			border: 0.2rem solid #008dda;
-			border-radius: 0.3rem;
-			cursor: pointer;
-			background-color: #0079ff;
-			box-shadow:
-				rgba(0, 0, 0, 0.16) 0px 1px 4px,
-				#0079ff 0px 0px 0px 2px;
-			width: 100%;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			gap: 1rem;
-
-			span {
-				font-size: 1.3rem;
-				font-family: 'Spline Sans', sans-serif;
-				color: $white;
-				font-weight: 500;
-				text-transform: uppercase;
-				letter-spacing: 0.1rem;
 			}
 		}
 	}

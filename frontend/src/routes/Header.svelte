@@ -52,13 +52,13 @@
 			text-decoration: none;
 
 			span {
-				font-size: 2.4rem;
-				font-weight: 500;
+				font-size: 1.5rem;
+				font-weight: 900;
 				text-transform: uppercase;
 				color: $black;
 				letter-spacing: 0.1rem;
 				letter-spacing: 0.1rem;
-				font-family: 'Scholarly Ambition', sans-serif;
+				font-family: $spline;
 			}
 		}
 
@@ -76,8 +76,8 @@
 			cursor: pointer;
 
 			svg {
-				height: 2rem;
-				width: 2rem;
+				height: 1.8rem;
+				width: 1.8rem;
 			}
 
 			span {

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { userSession } from '../../store';
 	import { hideAccountSwitcher, hideMenu, showMenu } from '../../utils';
 	import Spinner from '../Spinner.svelte';
@@ -10,6 +11,10 @@
 		hideMenu();
 		hideAccountSwitcher();
 	}
+
+	onMount(() => {
+		console.log('dashboard mounted');
+	});
 </script>
 
 <svelte:head>

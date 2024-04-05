@@ -5,6 +5,7 @@
 	import CardSkeleton from '../CardSkeleton.svelte';
 	import { scrollPageToTop } from '../../../utils';
 	import BackButton from '../BackButton.svelte';
+	import Button from '../../Button.svelte';
 
 	function goToPreAuth() {
 		localStorage.setItem('request', 'add');
@@ -14,6 +15,8 @@
 	function handleBackButton() {
 		location.href = '/dashboard';
 	}
+
+	function deleteAccount() {}
 
 	onMount(() => {
 		scrollPageToTop();
@@ -51,9 +54,19 @@
 				{:else}
 					<CardSkeleton height={4.5} width={30} padding={1} borderRadius={0.5} />
 				{/if}
-				<button>
+				<!-- <button>
 					<span>DELETE ACCOUNT</span>
-				</button>
+				</button> -->
+				<Button
+					height={4.5}
+					width={15}
+					backgroundColor="#E74646"
+					borderRadius={0.3}
+					color="rgb(255, 255, 255)"
+					padding={0.5}
+					text="delete account"
+					onClick={deleteAccount}
+				/>
 			</div>
 		</div>
 
@@ -83,9 +96,16 @@
 				{:else}
 					<CardSkeleton height={4.5} width={30} padding={1} borderRadius={0.5} />
 				{/if}
-				<button>
-					<span>DELETE ACCOUNT</span>
-				</button>
+				<Button
+					height={4.5}
+					width={15}
+					backgroundColor="#E74646"
+					borderRadius={0.3}
+					color="rgb(255, 255, 255)"
+					padding={0.5}
+					text="delete account"
+					onClick={deleteAccount}
+				/>
 			</div>
 		</div>
 		<div class="secondary-accounts">
@@ -108,18 +128,32 @@
 								<span class="email">{account.email}</span>
 							</div>
 						</div>
-						<button>
-							<span>DELETE ACCOUNT</span>
-						</button>
+						<Button
+							height={4.5}
+							width={15}
+							backgroundColor="#E74646"
+							borderRadius={0.3}
+							color="rgb(255, 255, 255)"
+							padding={0.5}
+							text="delete account"
+							onClick={deleteAccount}
+						/>
 					</div>
 				{/each}
 			{:else}
-				<CardSkeleton height={4.5} width={30} padding={1} borderRadius={0.5} />
+				<CardSkeleton height={4.5} width={75} padding={1} borderRadius={0.5} />
 			{/if}
 		</div>
-		<button class="add-account" on:click|preventDefault={goToPreAuth}>
-			<span>ADD NEW ACCOUNT</span>
-		</button>
+		<Button
+			height={4}
+			width={80}
+			backgroundColor="#525FE1"
+			borderRadius={0.3}
+			color="rgb(255, 255, 255)"
+			padding={0.5}
+			text="add new account"
+			onClick={goToPreAuth}
+		/>
 	</div>
 </section>
 
@@ -228,27 +262,6 @@
 							}
 						}
 					}
-
-					button {
-						border: 0.1rem solid $red;
-						background-color: $red;
-						box-shadow:
-							rgba(0, 0, 0, 0.16) 0px 1px 4px,
-							$red 0px 0px 0px 2px;
-						background-color: $red;
-						height: 4.5rem;
-						padding: 1rem 2rem;
-						min-width: max-content;
-						border-radius: 0.5rem;
-						cursor: pointer;
-
-						span {
-							font-size: 1.3rem;
-							font-family: $spline;
-							color: $white;
-							font-weight: 500;
-						}
-					}
 				}
 			}
 
@@ -331,54 +344,6 @@
 							}
 						}
 					}
-
-					button {
-						border: 0.1rem solid $red;
-						background-color: $red;
-						box-shadow:
-							rgba(0, 0, 0, 0.16) 0px 1px 4px,
-							$red 0px 0px 0px 2px;
-						background-color: $red;
-						height: 4.5rem;
-						padding: 1rem 2rem;
-						min-width: max-content;
-						border-radius: 0.5rem;
-						cursor: pointer;
-
-						span {
-							font-size: 1.3rem;
-							font-family: $spline;
-							color: $white;
-							font-weight: 500;
-						}
-					}
-				}
-			}
-
-			button.add-account {
-				border: none;
-				width: max-content;
-				padding: 1.5rem;
-				border: 0.2rem solid #008dda;
-				border-radius: 0.3rem;
-				cursor: pointer;
-				background-color: #0079ff;
-				box-shadow:
-					rgba(0, 0, 0, 0.16) 0px 1px 4px,
-					#0079ff 0px 0px 0px 2px;
-				width: 80rem;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				gap: 1rem;
-
-				span {
-					font-size: 1.5rem;
-					font-family: 'Spline Sans', sans-serif;
-					color: $white;
-					font-weight: 500;
-					text-transform: uppercase;
-					letter-spacing: 0.1rem;
 				}
 			}
 		}

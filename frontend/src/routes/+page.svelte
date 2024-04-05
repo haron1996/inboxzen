@@ -1,5 +1,32 @@
 <script lang="ts">
+	import { URL, errors } from '../store';
+	import Button from './Button.svelte';
 	import Header from './Header.svelte';
+
+	async function handleButtonClick() {
+		const url = `${$URL}/private/checkuserloginstatus`;
+
+		const response = await fetch(url, {
+			method: 'GET',
+			mode: 'cors',
+			cache: 'no-cache',
+			credentials: 'include',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			redirect: 'follow',
+			referrerPolicy: 'no-referrer'
+		});
+
+		const result = await response.json();
+
+		if (!response.ok) {
+			errors.update((errs) => [result.message, ...errs]);
+			return;
+		}
+
+		location.replace(result);
+	}
 </script>
 
 <svelte:head>
@@ -17,9 +44,16 @@
 			message delivery times effortlessly.
 		</p>
 	</div>
-	<button>
-		<span>Sign up with Google</span>
-	</button>
+	<Button
+		height={4}
+		width={40}
+		backgroundColor="#525FE1"
+		borderRadius={0.3}
+		color="rgb(255, 255, 255)"
+		padding={0.5}
+		text="Sign in with Google"
+		onClick={handleButtonClick}
+	/>
 </section>
 
 <style lang="scss">
@@ -45,12 +79,12 @@
 			gap: 2rem;
 
 			h1 {
-				font-size: 4rem;
+				font-size: 3rem;
 				text-transform: capitalize;
-				font-weight: 500;
+				font-weight: 600;
 				color: $black;
 				max-width: 50%;
-				font-family: 'Scholarly Ambition', sans-serif;
+				font-family: $spline;
 			}
 
 			p {
@@ -59,33 +93,6 @@
 				line-height: 1.6;
 				color: $light-black;
 				max-width: 50%;
-			}
-		}
-
-		button {
-			border: none;
-			width: max-content;
-			padding: 1.5rem;
-			border: 0.2rem solid #008dda;
-			border-radius: 0.3rem;
-			cursor: pointer;
-			background-color: #0079ff;
-			box-shadow:
-				rgba(0, 0, 0, 0.16) 0px 1px 4px,
-				#0079ff 0px 0px 0px 2px;
-			width: 30rem;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			gap: 1rem;
-
-			span {
-				font-size: 1.3rem;
-				font-family: $spline;
-				color: $white;
-				font-weight: 500;
-				text-transform: uppercase;
-				letter-spacing: 0.1rem;
 			}
 		}
 	}

@@ -146,7 +146,7 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 				switch {
 				case errors.Is(err, pgx.ErrNoRows):
 
-					log.Info("account not found: register user")
+					log.Info("register user")
 
 					user, err := q.AddUser(ctx, ui.ID)
 					if err != nil {
@@ -231,9 +231,7 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 				}
 			}
 
-			// log user in
-
-			log.Info("email found: log user in")
+			log.Info("log user in")
 
 			userID := email.UserID
 
@@ -290,8 +288,7 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	// add account
-	log.Info("cookie found: add account")
+	log.Info("add email to user emails")
 
 	payload, err := paseto.VerifyToken(cookie.Value)
 	if err != nil {
@@ -309,7 +306,6 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			// user does not exist
 			api.ReturnResponse(w, 500, nil, true, "user not found")
 			return &apperror.APPError{
 				Message: "Error getting user",
@@ -346,8 +342,6 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 			}
 		}
 	}
-
-	log.Info("time to add email")
 
 	addEmailParams := sqlc.AddEmailParams{
 		EmailAddress:   ui.Email,

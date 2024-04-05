@@ -32,6 +32,7 @@
 
 		if (!response.ok) {
 			errors.update((errs) => [result.message, ...errs]);
+			location.href = '/preauth';
 			return;
 		}
 

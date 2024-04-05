@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/haron1996/inboxzen/api/account"
 	"github.com/haron1996/inboxzen/logger"
+	"github.com/haron1996/inboxzen/mw"
 )
 
 func Router() *chi.Mux {
@@ -50,6 +51,11 @@ func Router() *chi.Mux {
 	r.Route("/account", func(r chi.Router) {
 		r.Get("/getauthurl", logger.MakeHandler(account.GenerateGoogleAuthURL, l))
 		r.Post("/comletegoogleauth", logger.MakeHandler(account.CompleteGoogleAuth, l))
+	})
+
+	r.Route("/private", func(r chi.Router) {
+		r.Use(mw.AuthenticateRequest())
+		r.Get("/checkuserloginstatus", logger.MakeHandler(account.CheckUserLoginStatus, l))
 	})
 
 	return r

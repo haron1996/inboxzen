@@ -1,3 +1,9 @@
+<script lang="ts">
+	import Button from '../Button.svelte';
+
+	function save() {}
+</script>
+
 <div class="vip-emails">
 	<div class="top">
 		<p>VIP DOMAINS</p>
@@ -64,9 +70,16 @@
 		<input type="email" name="email" id="email" autocomplete="off" placeholder="add email..." />
 	</div>
 	<div class="bottom">
-		<button>
-			<span>SAVE</span>
-		</button>
+		<Button
+			height={4}
+			width={10}
+			backgroundColor="#525FE1"
+			borderRadius={0.2}
+			color="rgb(255, 255, 255)"
+			padding={0.5}
+			text="save"
+			onClick={save}
+		/>
 	</div>
 </div>
 
@@ -149,24 +162,6 @@
 			display: flex;
 			align-items: center;
 			justify-content: flex-end;
-
-			button {
-				background-color: #525fe1;
-				border: none;
-				height: 4rem;
-				width: 10rem;
-				border-radius: 0.2rem;
-				cursor: pointer;
-
-				span {
-					font-family: $spline;
-					font-size: 1.2rem;
-					text-transform: uppercase;
-					font-weight: 500;
-					color: $white;
-					letter-spacing: 0.1rem;
-				}
-			}
 		}
 	}
 </style>

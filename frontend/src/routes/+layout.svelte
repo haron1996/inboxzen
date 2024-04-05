@@ -9,5 +9,4 @@
 
 <style>
 	@import url('https://fonts.cdnfonts.com/css/satoshi');
-	@import url('https://fonts.cdnfonts.com/css/scholarly-ambition');
 </style>
