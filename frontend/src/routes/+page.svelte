@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { URL, errors } from '../store';
+	import { URL } from '../store';
 	import Button from './Button.svelte';
 	import Header from './Header.svelte';
 
 	async function handleButtonClick() {
-		const url = `${$URL}/private/checkuserloginstatus`;
+		const url = `${$URL}/private/checkloginstatus`;
 
 		const response = await fetch(url, {
 			method: 'GET',
@@ -18,14 +18,12 @@
 			referrerPolicy: 'no-referrer'
 		});
 
-		const result = await response.json();
-
 		if (!response.ok) {
-			errors.update((errs) => [result.message, ...errs]);
+			location.href = '/preauth';
 			return;
 		}
 
-		location.replace(result);
+		location.href = '/dashboard';
 	}
 </script>
 
@@ -84,7 +82,6 @@
 				font-weight: 600;
 				color: $black;
 				max-width: 50%;
-				font-family: $spline;
 			}
 
 			p {

@@ -1,35 +1,45 @@
 <script lang="ts">
+	import { URL } from '../store';
+	import Button from './Button.svelte';
+
+	async function handleButtonClick() {
+		const url = `${$URL}/private/checkloginstatus`;
+
+		const response = await fetch(url, {
+			method: 'GET',
+			mode: 'cors',
+			cache: 'no-cache',
+			credentials: 'include',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			redirect: 'follow',
+			referrerPolicy: 'no-referrer'
+		});
+
+		if (!response.ok) {
+			location.href = '/preauth';
+			return;
+		}
+
+		location.href = '/dashboard';
+	}
 </script>
 
 <header>
 	<a href="/" class="logo">
 		<span>InboxZen</span>
 	</a>
-	<button>
-		<svg
-			width="24px"
-			height="24px"
-			stroke-width="1.5"
-			viewBox="0 0 24 24"
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg"
-			color="#000000"
-			><path
-				d="M19 12H12M12 12L15 15M12 12L15 9"
-				stroke="#000000"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-			></path><path
-				d="M19 6V5C19 3.89543 18.1046 3 17 3H7C5.89543 3 5 3.89543 5 5V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V18"
-				stroke="#000000"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-			></path></svg
-		>
-		<span>Login</span>
-	</button>
+	<Button
+		height={3.5}
+		width={10}
+		backgroundColor="#525FE1"
+		borderRadius={0.3}
+		color="rgb(255, 255, 255)"
+		padding={0.5}
+		text="login"
+		onClick={handleButtonClick}
+	/>
 </header>
 
 <style lang="scss">
@@ -59,31 +69,6 @@
 				letter-spacing: 0.1rem;
 				letter-spacing: 0.1rem;
 				font-family: $spline;
-			}
-		}
-
-		button {
-			border: 0.1rem solid $light-black;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: max-content;
-			min-width: 10rem;
-			padding: 0.5rem 1rem;
-			border-radius: 0.3rem;
-			background-color: $white;
-			gap: 0.5rem;
-			cursor: pointer;
-
-			svg {
-				height: 1.8rem;
-				width: 1.8rem;
-			}
-
-			span {
-				font-size: 1.5rem;
-				font-family: $spline;
-				text-transform: uppercase;
 			}
 		}
 	}

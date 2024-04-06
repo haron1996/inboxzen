@@ -1,4 +1,4 @@
-package account
+package user
 
 import (
 	"net/http"
@@ -8,7 +8,7 @@ import (
 	"github.com/haron1996/inboxzen/paseto"
 )
 
-func CheckUserLoginStatus(w http.ResponseWriter, r *http.Request) error {
+func GetUser(w http.ResponseWriter, r *http.Request) error {
 	ctx := r.Context()
 
 	const pLoad mw.ContextKey = "payload"

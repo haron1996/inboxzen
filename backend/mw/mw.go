@@ -56,7 +56,7 @@ func AuthenticateRequest() func(next http.Handler) http.Handler {
 }
 
 func verifyToken(r *http.Request) (*paseto.PayLoad, error) {
-	c, err := r.Cookie("token")
+	c, err := r.Cookie("session")
 	if err != nil {
 		return nil, err
 	}

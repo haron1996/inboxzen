@@ -3,7 +3,7 @@
 	import Button from '../Button.svelte';
 
 	async function getAuthURL() {
-		const url = `${$URL}/account/getauthurl`;
+		const url = `${$URL}/user/getauthurl`;
 
 		const response = await fetch(url, {
 			method: 'GET',

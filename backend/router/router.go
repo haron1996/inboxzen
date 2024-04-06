@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/haron1996/inboxzen/api/account"
+	"github.com/haron1996/inboxzen/api/user"
 	"github.com/haron1996/inboxzen/logger"
 	"github.com/haron1996/inboxzen/mw"
 )
@@ -19,11 +19,11 @@ func Router() *chi.Mux {
 	styles := log.DefaultStyles()
 
 	styles.Levels[log.ErrorLevel] = lipgloss.NewStyle().
-		SetString("ERROR").
+		SetString("ERRO").
 		Foreground(lipgloss.Color("#FF0060"))
 
 	styles.Levels[log.InfoLevel] = lipgloss.NewStyle().
-		SetString("ERROR").
+		SetString("INFO").
 		Foreground(lipgloss.Color("#22A699"))
 
 	l := log.New(os.Stderr)
@@ -49,13 +49,14 @@ func Router() *chi.Mux {
 	r.Use(middleware.RealIP)
 
 	r.Route("/account", func(r chi.Router) {
-		r.Get("/getauthurl", logger.MakeHandler(account.GenerateGoogleAuthURL, l))
-		r.Post("/comletegoogleauth", logger.MakeHandler(account.CompleteGoogleAuth, l))
+		r.Get("/getauthurl", logger.MakeHandler(user.GenerateGoogleAuthURL, l))
+		r.Post("/comletegoogleauth", logger.MakeHandler(user.CompleteGoogleAuth, l))
 	})
 
 	r.Route("/private", func(r chi.Router) {
 		r.Use(mw.AuthenticateRequest())
-		r.Get("/checkuserloginstatus", logger.MakeHandler(account.CheckUserLoginStatus, l))
+		r.Get("/checkloginstatus", logger.MakeHandler(user.CheckUserLoginStatus, l))
+		r.Get("/getuser", logger.MakeHandler(user.GetUser, l))
 	})
 
 	return r

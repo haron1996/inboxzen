@@ -1,6 +1,6 @@
 module github.com/haron1996/inboxzen
 
-go 1.22.1
+go 1.22.2
 
 require (
 	aidanwoods.dev/go-paseto v1.5.1

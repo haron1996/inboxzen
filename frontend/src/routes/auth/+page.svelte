@@ -13,7 +13,7 @@
 	});
 
 	async function completeGoogleAuth(code: string) {
-		const url = `${$URL}/account/comletegoogleauth`;
+		const url = `${$URL}/user/comletegoogleauth`;
 
 		const response = await fetch(url, {
 			method: 'POST',
@@ -32,7 +32,9 @@
 
 		if (!response.ok) {
 			errors.update((errs) => [result.message, ...errs]);
-			location.href = '/preauth';
+			setTimeout(() => {
+				location.href = '/preauth';
+			}, 3000);
 			return;
 		}
 

@@ -1,20 +1,35 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { userSession } from '../../store';
+	import { userSession, URL } from '../../store';
 	import { hideAccountSwitcher, hideMenu, showMenu } from '../../utils';
 	import Spinner from '../Spinner.svelte';
 	import Accounts from './Accounts.svelte';
 	import CardSkeleton from './CardSkeleton.svelte';
 	import Menu from './Menu.svelte';
 
+	onMount(() => {
+		console.log('dashboard mounted');
+	});
+
 	function handleSectionClick() {
 		hideMenu();
 		hideAccountSwitcher();
 	}
 
-	onMount(() => {
-		console.log('dashboard mounted');
-	});
+	async function getUser() {
+		const url = `${$URL}/private/getUser`;
+		const response = await fetch(url, {
+			method: 'POST',
+			mode: 'cors',
+			cache: 'no-cache',
+			credentials: 'same-origin',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			redirect: 'follow',
+			referrerPolicy: 'no-referrer'
+		});
+	}
 </script>
 
 <svelte:head>
