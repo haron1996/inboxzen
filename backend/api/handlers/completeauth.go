@@ -1,4 +1,4 @@
-package user
+package handlers
 
 import (
 	"context"
@@ -178,7 +178,7 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 						}
 					}
 
-					t, p, err := paseto.CreateToken(userID, issuedAt, duration)
+					t, p, err := paseto.CreateToken(userID, ui.Email, issuedAt, duration)
 					if err != nil {
 						api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 						return &apperror.APPError{
@@ -235,7 +235,7 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 
 			userID := email.UserID
 
-			t, p, err := paseto.CreateToken(userID, issuedAt, duration)
+			t, p, err := paseto.CreateToken(userID, ui.Email, issuedAt, duration)
 			if err != nil {
 				api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 				return &apperror.APPError{
@@ -361,7 +361,45 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	log.Info(email)
+	t, pload, err := paseto.CreateToken(userID, email.EmailAddress, issuedAt, duration)
+	if err != nil {
+		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+		return &apperror.APPError{
+			Message: "Error creating token",
+			Code:    500,
+			Err:     err,
+		}
+	}
+
+	lastLoginParams := sqlc.UpdateLastLoginParams{
+		LastLogin: pgtype.Timestamptz{
+			Time:  issuedAt,
+			Valid: true,
+		},
+		ID: userID,
+	}
+
+	err = q.UpdateLastLogin(ctx, lastLoginParams)
+	if err != nil {
+		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+		return &apperror.APPError{
+			Message: "Error updating user last login",
+			Code:    500,
+			Err:     err,
+		}
+	}
+
+	session := http.Cookie{
+		Name:     "session",
+		Value:    t,
+		Path:     "/",
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+		HttpOnly: true,
+		Expires:  pload.Expiry,
+	}
+
+	http.SetCookie(w, &session)
 
 	api.ReturnResponse(w, 200, nil, true, messages.OK)
 

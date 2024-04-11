@@ -1,87 +1,68 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { userSession, URL } from '../../store';
-	import { hideAccountSwitcher, hideMenu, showMenu } from '../../utils';
-	import Spinner from '../Spinner.svelte';
-	import Accounts from './Accounts.svelte';
+	import { URL, session } from '../../store';
+	import { hideMenu, showMenu, updateErrorMessages } from '../../utils';
 	import CardSkeleton from './CardSkeleton.svelte';
 	import Menu from './Menu.svelte';
+	import ProfileCard from './ProfileCard.svelte';
 
-	onMount(() => {
-		console.log('dashboard mounted');
-	});
+	async function getUserAccount() {
+		const url = `${$URL}/private/getuseraccount`;
 
-	function handleSectionClick() {
-		hideMenu();
-		hideAccountSwitcher();
-	}
-
-	async function getUser() {
-		const url = `${$URL}/private/getUser`;
 		const response = await fetch(url, {
-			method: 'POST',
+			method: 'GET',
 			mode: 'cors',
 			cache: 'no-cache',
-			credentials: 'same-origin',
+			credentials: 'include',
 			headers: {
 				'Content-Type': 'application/json'
 			},
 			redirect: 'follow',
 			referrerPolicy: 'no-referrer'
 		});
+
+		const result = await response.json();
+
+		if (!response.ok) {
+			const message = result.message;
+			switch (message) {
+				case 'The access token provided is invalid or has expired. Please log in again.':
+					updateErrorMessages(message);
+					setTimeout(() => {
+						location.href = '/';
+					}, 3000);
+					return;
+				default:
+					updateErrorMessages(message);
+					return;
+			}
+		}
+
+		session.set(result);
 	}
+
+	onMount(() => {
+		getUserAccount();
+	});
 </script>
 
 <svelte:head>
-	<title>Dashboard | Inboxzen</title>
+	<title>Dashboard | Inbox Check</title>
 </svelte:head>
 
-<svelte:window on:resize={showMenu} />
+<svelte:window on:resize={hideMenu} />
 
 <Menu />
-<Accounts />
 
-<section role="none" on:click={handleSectionClick}>
+<section role="none" on:click={hideMenu}>
 	<div class="top">
-		{#if $userSession && $userSession.account}
-			<div
-				class="profile"
-				id="profile"
-				role="none"
-				on:click|preventDefault|stopPropagation={showMenu}
-			>
-				<div class="left">
-					<div class="image">
-						{#if $userSession.account?.profile_picture}
-							<img src={$userSession.account?.profile_picture} alt="profile" />
-						{:else}
-							<Spinner />
-						{/if}
-					</div>
-				</div>
-				<div class="center">
-					<span class="name">{$userSession.account?.account_name}</span>
-					<span class="email">{$userSession.account?.email}</span>
-				</div>
-				<div class="right">
-					<svg
-						width="24px"
-						height="24px"
-						stroke-width="1.5"
-						viewBox="0 0 24 24"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-						color="#000000"
-						><path
-							d="M6 9L12 15L18 9"
-							stroke="#000000"
-							stroke-width="1.5"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						></path></svg
-					>
-				</div>
-			</div>
+		{#if $session && $session.email}
+			<ProfileCard
+				name={$session.email.account_name}
+				email={$session.email.email_address}
+				picture={$session.email.profile_picture}
+				onClick={showMenu}
+			/>
 		{:else}
 			<CardSkeleton height={4.5} />
 		{/if}
@@ -105,80 +86,6 @@
 			align-items: center;
 			justify-content: center;
 			padding: 1rem;
-
-			.profile {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				width: max-content;
-				height: max-content;
-				gap: 1rem;
-				padding: 0.5rem 1rem;
-				border-radius: 0.3rem;
-				cursor: pointer;
-				position: relative;
-				max-width: 40rem;
-				background-color: $white;
-				box-shadow:
-					rgba(255, 255, 255, 0.2) 0rem 0rem 0rem 0.1rem inset,
-					rgba(0, 0, 0, 0.9) 0rem 0rem 0rem 0.1rem;
-
-				.left {
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					height: 3.5rem;
-					width: 3.5rem;
-					border-radius: 50%;
-					letter-spacing: 0.1rem;
-
-					img {
-						max-inline-size: 100%;
-						object-fit: cover;
-						border-radius: 50%;
-					}
-				}
-
-				.center {
-					display: flex;
-					flex-direction: column;
-					justify-content: center;
-
-					span {
-						font-size: 1.3rem;
-						font-weight: 500;
-						font-family: $spline;
-						color: $black;
-						white-space: nowrap;
-						overflow: hidden;
-						text-overflow: ellipsis;
-						text-transform: uppercase;
-						max-width: 30rem;
-					}
-
-					span.email {
-						color: $light-black;
-						text-transform: lowercase;
-					}
-				}
-
-				.right {
-					display: flex;
-					align-items: center;
-					justify-content: center;
-
-					svg {
-						border-radius: 50%;
-						border: 0.1rem solid rgba(0, 0, 0, 0.1);
-						height: 2rem;
-						width: 2rem;
-
-						path {
-							stroke: $light-black;
-						}
-					}
-				}
-			}
 		}
 
 		.bottom {

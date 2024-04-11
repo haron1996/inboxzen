@@ -3,12 +3,11 @@ package router
 import (
 	"os"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/haron1996/inboxzen/api/user"
+	"github.com/haron1996/inboxzen/api/handlers"
 	"github.com/haron1996/inboxzen/logger"
 	"github.com/haron1996/inboxzen/mw"
 )
@@ -16,19 +15,7 @@ import (
 func Router() *chi.Mux {
 	r := chi.NewRouter()
 
-	styles := log.DefaultStyles()
-
-	styles.Levels[log.ErrorLevel] = lipgloss.NewStyle().
-		SetString("ERRO").
-		Foreground(lipgloss.Color("#FF0060"))
-
-	styles.Levels[log.InfoLevel] = lipgloss.NewStyle().
-		SetString("INFO").
-		Foreground(lipgloss.Color("#22A699"))
-
 	l := log.New(os.Stderr)
-
-	l.SetStyles(styles)
 
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173", "https://bookmarkmonster.xyz", "https://*.bookmarkmonster.xyz"},
@@ -48,15 +35,23 @@ func Router() *chi.Mux {
 	r.Use(middleware.RedirectSlashes)
 	r.Use(middleware.RealIP)
 
-	r.Route("/account", func(r chi.Router) {
-		r.Get("/getauthurl", logger.MakeHandler(user.GenerateGoogleAuthURL, l))
-		r.Post("/comletegoogleauth", logger.MakeHandler(user.CompleteGoogleAuth, l))
+	r.Route("/user", func(r chi.Router) {
+		r.Get("/getauthurl", logger.MakeHandler(handlers.GenerateGoogleAuthURL, l))
+		r.Post("/comletegoogleauth", logger.MakeHandler(handlers.CompleteGoogleAuth, l))
 	})
 
 	r.Route("/private", func(r chi.Router) {
 		r.Use(mw.AuthenticateRequest())
-		r.Get("/checkloginstatus", logger.MakeHandler(user.CheckUserLoginStatus, l))
-		r.Get("/getuser", logger.MakeHandler(user.GetUser, l))
+		r.Get("/checkloginstatus", logger.MakeHandler(handlers.CheckUserLoginStatus, l))
+		r.Get("/getuseraccount", logger.MakeHandler(handlers.GetUserAccount, l))
+		r.Get("/logout", logger.MakeHandler(handlers.LogOut, l))
+		r.Get("/switchaccount/{email}", logger.MakeHandler(handlers.SwitchAccount, l))
+		r.Get("/getdomains", logger.MakeHandler(handlers.GetDomains, l))
+		r.Get("/getemails", logger.MakeHandler(handlers.GetVipEmails, l))
+		r.Get("/getkeywords", logger.MakeHandler(handlers.GetVipKeywords, l))
+		r.Post("/updatedomains", logger.MakeHandler(handlers.AddDomains, l))
+		r.Post("/updateemails", logger.MakeHandler(handlers.UpdateVipEmails, l))
+		r.Post("/updatekeywords", logger.MakeHandler(handlers.UpdateVipKeywords, l))
 	})
 
 	return r

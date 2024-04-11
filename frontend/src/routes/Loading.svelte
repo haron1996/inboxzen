@@ -1,6 +1,12 @@
-<div class="wrapper">
-	<div class="loader" />
-</div>
+<script>
+	import { loading } from '../store';
+</script>
+
+{#if $loading}
+	<div class="wrapper">
+		<div class="loader" />
+	</div>
+{/if}
 
 <style lang="scss">
 	.wrapper {

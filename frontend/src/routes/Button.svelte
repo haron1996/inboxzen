@@ -3,7 +3,7 @@
 	export let height = 0;
 	export let backgroundColor = '';
 	export let padding = 0;
-	export let borderRadius = 5;
+	export let borderRadius = 0;
 	export let color = '';
 	export let text = '';
 	export let onClick: () => void;
@@ -24,6 +24,7 @@
 		align-items: center;
 		justify-content: center;
 		gap: 1rem;
+		min-width: max-content;
 
 		span {
 			font-size: 1.2rem;

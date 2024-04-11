@@ -2,7 +2,8 @@
 	import { onMount } from 'svelte';
 	import Spinner from '../Spinner.svelte';
 	import { page } from '$app/stores';
-	import { URL, errors } from '../../store';
+	import { URL } from '../../store';
+	import { updateErrorMessages } from '../../utils';
 
 	onMount(() => {
 		const code = $page.url.searchParams.get('code');
@@ -31,7 +32,8 @@
 		const result = await response.json();
 
 		if (!response.ok) {
-			errors.update((errs) => [result.message, ...errs]);
+			const message = result.message;
+			updateErrorMessages(message);
 			setTimeout(() => {
 				location.href = '/preauth';
 			}, 3000);
@@ -43,7 +45,7 @@
 </script>
 
 <svelte:head>
-	<title>Continue with Google | Inboxzen</title>
+	<title>Continue with Google | Inbox Check</title>
 </svelte:head>
 
 <div class="wrapper">

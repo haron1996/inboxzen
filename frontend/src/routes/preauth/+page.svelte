@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { URL, errors } from '../../store';
+	import { URL } from '../../store';
+	import { updateErrorMessages } from '../../utils';
 	import Button from '../Button.svelte';
 
 	async function getAuthURL() {
@@ -20,7 +21,8 @@
 		const result = await response.json();
 
 		if (!response.ok) {
-			errors.update((errs) => [result.message, ...errs]);
+			const message = result.message;
+			updateErrorMessages(message);
 			return;
 		}
 
@@ -29,7 +31,7 @@
 </script>
 
 <svelte:head>
-	<title>Pre-auth | Inboxzen</title>
+	<title>Pre-auth | Inbox Check</title>
 </svelte:head>
 
 <section>
@@ -60,8 +62,8 @@
 		<Button
 			height={4}
 			width={50}
-			backgroundColor="#525FE1"
-			borderRadius={0.3}
+			backgroundColor="#00a6fb"
+			borderRadius={0.6}
 			color="rgb(255, 255, 255)"
 			padding={0.5}
 			text="agree and continue"

@@ -7,6 +7,7 @@ create table deliveryTime (
     date_added timestamptz not null default current_timestamp,
     date_updated timestamptz,
     email_address text not null,
+    unique(delivery_time, email_address),
     foreign key (email_address) references email(email_address) on delete cascade
 );
 

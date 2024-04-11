@@ -7,10 +7,10 @@ import (
 	"github.com/haron1996/inboxzen/viper"
 )
 
-func CreateToken(userID string, issuedAt time.Time, duration time.Duration) (string, *PayLoad, error) {
+func CreateToken(userID, email string, issuedAt time.Time, duration time.Duration) (string, *PayLoad, error) {
 	expiry := time.Now().UTC().Add(duration)
 
-	payload := newPayload(userID, issuedAt, expiry)
+	payload := newPayload(userID, email, issuedAt, expiry)
 
 	token := paseto.NewToken()
 

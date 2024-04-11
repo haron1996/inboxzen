@@ -1,11 +1,13 @@
 <script lang="ts">
 	import './../global.scss';
-	import Errors from './Errors.svelte';
 	import Loading from './Loading.svelte';
+	import SuccessAlerts from './SuccessAlerts.svelte';
+	import ErrorAlerts from './ErrorAlerts.svelte';
 </script>
 
-<Errors />
 <Loading />
+<SuccessAlerts />
+<ErrorAlerts />
 
 <slot />
 

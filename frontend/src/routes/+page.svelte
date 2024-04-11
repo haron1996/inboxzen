@@ -28,7 +28,7 @@
 </script>
 
 <svelte:head>
-	<title>Inboxzen | Way To Inbox Zero</title>
+	<title>Inbox Check | Way To Inbox Zero</title>
 	<meta name="description" content="Reclaim control of your inbox with InboxZen" />
 </svelte:head>
 
@@ -36,20 +36,20 @@
 
 <section>
 	<div class="offer">
-		<h1>Empower Your Inbox: Control Senders and Delivery Times with Our Plugin</h1>
+		<h1>Manage Senders and Delivery Times with Our Gmail Plugin.</h1>
 		<p>
-			Take charge of your inbox with our plugin, allowing you to manage allowed senders and schedule
-			message delivery times effortlessly.
+			Effortlessly take charge of your inbox: control approved senders and schedule message delivery
+			with ease.
 		</p>
 	</div>
 	<Button
-		height={4}
+		height={5}
 		width={40}
-		backgroundColor="#525FE1"
-		borderRadius={0.3}
+		backgroundColor="#00a6fb"
+		borderRadius={0.6}
 		color="rgb(255, 255, 255)"
 		padding={0.5}
-		text="Sign in with Google"
+		text="Get Started Now"
 		onClick={handleButtonClick}
 	/>
 </section>
@@ -57,7 +57,7 @@
 <style lang="scss">
 	section {
 		width: 100dvw;
-		min-height: 90dvh;
+		min-height: 70dvh;
 		height: max-content;
 		overflow-y: auto;
 		background-color: $white;
@@ -74,22 +74,22 @@
 			align-items: center;
 			justify-content: center;
 			text-align: center;
-			gap: 2rem;
+			gap: 1rem;
+			width: 40%;
 
 			h1 {
-				font-size: 3rem;
+				font-size: 2.4rem;
+				font-weight: 900;
 				text-transform: capitalize;
-				font-weight: 600;
 				color: $black;
-				max-width: 50%;
+				font-family: $spline;
 			}
 
 			p {
 				font-family: 'Spline Sans', sans-serif;
 				font-size: 1.8rem;
-				line-height: 1.6;
+				line-height: 1.5;
 				color: $light-black;
-				max-width: 50%;
 			}
 		}
 	}

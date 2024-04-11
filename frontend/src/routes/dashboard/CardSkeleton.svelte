@@ -1,7 +1,7 @@
 <script lang="ts">
 	export let height = 40;
 	export let width = 30;
-	export let padding = 1;
+	export let padding = 0;
 	export let borderRadius = 0.5;
 </script>
 

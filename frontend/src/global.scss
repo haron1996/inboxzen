@@ -31,3 +31,52 @@ html {
     box-sizing: border-box;
     overflow-x: hidden;
 }
+
+.success {
+    z-index: 1000;
+	position: fixed;
+	left: 50%;
+    top: 2%;
+	transform: translateX(-50%);
+	min-width: max-content;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 5rem;
+	background-color: #d0efb1;
+	padding: 1rem;
+	border-radius: 1rem;
+	transition: all 0.3s ease-in-out;
+	box-shadow:
+		rgba(9, 30, 66, 0.25) 0px 4px 8px -2px,
+		rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
+	font-family: $spline;
+	font-size: 1.3rem;
+	font-weight: 500;
+	color: #3f7d20;
+}
+
+.error {
+    z-index: 1000;
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: max-content;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 5rem;
+    background-color: #ffcccc;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease-in-out;
+    box-shadow:
+        rgba(9, 30, 66, 0.25) 0px 4px 8px -2px,
+        rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
+    top: 2%;
+    display: none;
+    font-family: $spline;
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: rgb(155 28 28/1);
+}

@@ -8,6 +8,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/haron1996/inboxzen/api"
+	"github.com/haron1996/inboxzen/messages"
 	"github.com/haron1996/inboxzen/paseto"
 	"github.com/haron1996/inboxzen/sqlc"
 	"github.com/haron1996/inboxzen/viper"
@@ -27,7 +28,7 @@ func AuthenticateRequest() func(next http.Handler) http.Handler {
 			payload, err := verifyToken(r)
 			if err != nil {
 				log.Errorf("Error verifying token: %v", err)
-				api.ReturnResponse(w, 401, nil, true, err.Error())
+				api.ReturnResponse(w, 401, nil, true, messages.ErrInvalidToken)
 				return
 			}
 
@@ -35,13 +36,13 @@ func AuthenticateRequest() func(next http.Handler) http.Handler {
 				account, err := getUser(ctx, payload.UserID)
 				if err != nil {
 					log.Errorf("Errror getting user: %v", err)
-					api.ReturnResponse(w, 401, nil, true, "user not found")
+					api.ReturnResponse(w, 401, nil, true, messages.ErrInvalidToken)
 					return
 				}
 
 				if payload.IssuedAt.Unix() != account.LastLogin.Time.Unix() {
 					log.Error("Invalid access token")
-					api.ReturnResponse(w, 401, nil, true, "invalid access token")
+					api.ReturnResponse(w, 401, nil, true, messages.ErrInvalidToken)
 					return
 				}
 
