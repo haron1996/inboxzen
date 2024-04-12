@@ -279,6 +279,7 @@ export const getUserAccount = async () => {
 			return response.json();
 		})
 		.then((data: Session) => {
+			console.log(data);
 			session.set(data);
 		})
 		.catch((error) => {
@@ -306,7 +307,5 @@ export const getUserEmailSettings = async () => {
 		`${url}/private/getkeywords`
 	];
 
-	urls.forEach((url) => {
-		console.log(url);
-	});
+	await Promise.all([getUserAccount()]);
 };

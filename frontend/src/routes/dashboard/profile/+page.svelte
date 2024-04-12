@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { URL, session } from '../../../store';
 	import CardSkeleton from '../CardSkeleton.svelte';
-	import { scrollPageToTop, updateErrorMessages } from '../../../utils';
+	import { getUserEmailSettings, scrollPageToTop, updateErrorMessages } from '../../../utils';
 	import BackButton from '../BackButton.svelte';
 	import Button from '../../Button.svelte';
 	import ProfileCard from '../ProfileCard.svelte';
@@ -48,7 +48,8 @@
 
 	onMount(() => {
 		scrollPageToTop();
-		getUserAccount();
+		//getUserAccount();
+		getUserEmailSettings();
 	});
 </script>
 
