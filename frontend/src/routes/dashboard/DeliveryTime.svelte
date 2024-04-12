@@ -1,75 +1,48 @@
 <script lang="ts">
-	import { URL, errorMessages } from '../../store';
-	import { updateErrorMessages } from '../../utils';
+	import { time, times } from '../../store';
+	import { setInboxDeliveryTime, updateErrorMessages } from '../../utils';
 	import Button from '../Button.svelte';
 
-	let hour = '';
-	let minutes = '';
-	let am_pm = '';
+	// let hour = '';
+	// let minutes = '';
+	// let am_pm = '';
 
 	function handleHourInputBlur() {
-		if (hour === '') return;
+		if ($time.hour === '' || $time.hour === undefined) return;
 
-		if (hour.length > 1) return;
+		if ($time.hour && $time.hour.length > 1) return;
 
-		hour = '0' + hour;
+		$time.hour = '0' + $time.hour;
 	}
 
 	function handleMinutesInputBlur() {
-		if (minutes === '') return;
+		if ($time.minutes === '' || $time.minutes === undefined) return;
 
-		if (minutes.length > 1) return;
+		if ($time.minutes && $time.minutes.length > 1) return;
 
-		minutes = '0' + minutes;
+		$time.minutes = '0' + $time.minutes;
 	}
 
-	async function setDeliveryTime() {
-		const url = `${$URL}/private/setdeliverytime`;
-
-		if (hour === '' || minutes === '' || am_pm === '') {
+	function handleSetInboxDeliveryTime() {
+		if (
+			$time.hour === '' ||
+			$time.hour === undefined ||
+			$time.minutes === '' ||
+			$time.minutes === undefined ||
+			$time.am_pm === '' ||
+			$time.am_pm === undefined
+		) {
 			updateErrorMessages('Set a valid time before submitting');
 			return;
 		}
 
 		const data = {
-			hour: hour,
-			minutes: minutes,
-			am_pm: am_pm
+			hour: $time.hour,
+			minutes: $time.minutes,
+			am_pm: $time.am_pm
 		};
 
-		console.log(data);
-
-		await fetch(url, {
-			method: 'POST',
-			mode: 'cors',
-			cache: 'no-cache',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			redirect: 'follow',
-			referrerPolicy: 'no-referrer',
-			body: JSON.stringify(data)
-		})
-			.then((response) => {
-				if (!response.ok) {
-					throw new Error('Network response was not ok');
-				}
-
-				return response.json();
-			})
-			.then((data) => {
-				console.log(data);
-			})
-			.catch((error) => {
-				// console.error('Error:', error);
-				// if (error.message === 'Failed to fetch') {
-				// 	console.error('Connection error: Unable to reach the server.');
-				// 	updateErrorMessages('Unable to reach the server.');
-				// }
-				console.log(error);
-				errorMessages.update(error.message);
-			});
+		setInboxDeliveryTime(data);
 	}
 </script>
 
@@ -86,7 +59,7 @@
 				id="hour"
 				autocomplete="off"
 				placeholder="Hour"
-				bind:value={hour}
+				bind:value={$time.hour}
 				on:blur={handleHourInputBlur}
 			/>
 			<input
@@ -95,7 +68,7 @@
 				id="minutes"
 				autocomplete="off"
 				placeholder="Minutes"
-				bind:value={minutes}
+				bind:value={$time.minutes}
 				on:blur={handleMinutesInputBlur}
 			/>
 			<input
@@ -104,59 +77,59 @@
 				id="am_pm"
 				autocomplete="off"
 				placeholder="am/pm"
-				bind:value={am_pm}
+				bind:value={$time.am_pm}
 			/>
 			<Button
 				height={4}
 				width={10}
-				backgroundColor="#00a6fb"
 				borderRadius={0.3}
 				color="rgb(255, 255, 255)"
 				padding={0.5}
 				text="set"
-				onClick={setDeliveryTime}
+				onClick={handleSetInboxDeliveryTime}
 			/>
 		</div>
 		<div class="set-times">
-			<div class="time">
-				<input
-					type="text"
-					name="set_hour"
-					id="set_hour"
-					autocomplete="off"
-					placeholder="Hour"
-					value="06"
-					disabled
-				/>
-				<input
-					type="text"
-					name="set_minutes"
-					id="set_minutes"
-					autocomplete="off"
-					placeholder="Minutes"
-					value="00"
-					disabled
-				/>
-				<input
-					type="text"
-					name="set_am_pm"
-					id="set_am_pm"
-					autocomplete="off"
-					placeholder="am/pm"
-					value="am"
-					disabled
-				/>
-				<Button
-					height={4}
-					width={10}
-					backgroundColor="#ff4d6d"
-					borderRadius={0.3}
-					color="rgb(255, 255, 255)"
-					padding={0.5}
-					text="delete"
-					onClick={() => {}}
-				/>
-			</div>
+			{#each $times as t}
+				<div class="time">
+					<input
+						type="text"
+						name="set_hour"
+						id="set_hour"
+						autocomplete="off"
+						placeholder="Hour"
+						value={t.hour}
+						disabled
+					/>
+					<input
+						type="text"
+						name="set_minutes"
+						id="set_minutes"
+						autocomplete="off"
+						placeholder="Minutes"
+						value={t.minutes}
+						disabled
+					/>
+					<input
+						type="text"
+						name="set_am_pm"
+						id="set_am_pm"
+						autocomplete="off"
+						placeholder="am/pm"
+						value={t.am_pm}
+						disabled
+					/>
+					<Button
+						height={4}
+						width={10}
+						borderRadius={0.3}
+						color="rgb(255, 255, 255)"
+						padding={0.5}
+						text="delete"
+						onClick={() => {}}
+					/>
+				</div>
+			{/each}
 		</div>
 	</div>
 </div>

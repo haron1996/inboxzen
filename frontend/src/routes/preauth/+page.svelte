@@ -10,22 +10,22 @@
 <section>
 	<div class="card">
 		<div class="title">
-			<p>InboxZen will request the following permissions.</p>
+			<p>Zenn will request the following permissions.</p>
 		</div>
 		<ul>
 			<li>
-				<p>🚀 see and edit your email labels.</p>
+				<p>1. See and edit your email labels.</p>
 				<span
 					>We will use this permission to organize your emails by creating a folder in your Gmail
 					account specifically for snoozing incoming emails.</span
 				>
 			</li>
 			<li>
-				<p>🚀 read, compose, and send emails from your Gmail account.</p>
+				<p>2. Read, compose, and send emails from your Gmail account.</p>
 				<span>We will use this permission to move snoozed emails to your inbox folder.</span>
 			</li>
 			<li>
-				<p>🚀 see, edit, create, or change your email settings and filters in Gmail</p>
+				<p>3. See, edit, create, or change your email settings and filters in Gmail</p>
 				<span
 					>We will use this permission to manage incoming emails by redirecting them to a snoozed
 					folder.</span
@@ -35,11 +35,10 @@
 		<Button
 			height={4}
 			width={45}
-			backgroundColor="#00a6fb"
 			borderRadius={0.6}
 			color="rgb(255, 255, 255)"
 			padding={0.5}
-			text="agree and continue"
+			text="continue"
 			onClick={getAuthURL}
 		/>
 	</div>
@@ -60,7 +59,7 @@
 			width: 50rem;
 			display: flex;
 			flex-direction: column;
-			gap: 4rem;
+			gap: 2rem;
 			line-height: 1.5;
 			padding: 1rem;
 
@@ -73,8 +72,7 @@
 					font-family: $spline;
 					font-size: 1.3rem;
 					color: $black;
-					text-transform: uppercase;
-					font-weight: 500;
+					font-weight: 600;
 				}
 			}
 
@@ -92,15 +90,15 @@
 					p {
 						font-family: $spline;
 						font-size: 1.3rem;
-						font-weight: 600;
+						font-weight: 500;
 						color: $black;
 						text-transform: none;
 					}
 
 					span {
 						font-family: $spline;
-						font-size: 1.4rem;
-						color: $black-1;
+						font-size: 1.3rem;
+						color: $black;
 					}
 				}
 			}

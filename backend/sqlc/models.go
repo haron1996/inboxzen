@@ -10,9 +10,7 @@ import (
 
 type Deliverytime struct {
 	DeliveryTime string             `json:"delivery_time"`
-	DeliveryAmPm string             `json:"delivery_am_pm"`
 	DateAdded    pgtype.Timestamptz `json:"date_added"`
-	DateUpdated  pgtype.Timestamptz `json:"date_updated"`
 	EmailAddress string             `json:"email_address"`
 }
 

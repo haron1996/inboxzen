@@ -1,38 +1,29 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { URL } from '../../store';
+	import { domain, domains, loading } from '../../store';
 	import Button from '../Button.svelte';
-	import { updateErrorMessages, updateSuccessMessages } from '../../utils';
-
-	interface Domain {
-		date_added?: string | undefined;
-		domain_name?: string | undefined;
-		email_address?: string | undefined;
-	}
-
-	let domain: Domain = {};
-	let domains: Domain[] = [];
+	import { updateVipDomains } from '../../utils';
+	import CardSkeleton from './CardSkeleton.svelte';
 
 	function handleDomainInputBlur() {
-		if (domain.domain_name === undefined) return;
+		if ($domain.domain_name === undefined) return;
 
 		let found = false;
 
-		domains.forEach((d) => {
-			if (d.domain_name === domain.domain_name) {
+		$domains.forEach((d) => {
+			if (d.domain_name === $domain.domain_name) {
 				found = true;
 				return;
 			}
 		});
 
 		if (found) {
-			domain = {};
+			$domain = {};
 			return;
 		}
 
-		domains = [domain, ...domains];
+		$domains = [$domain, ...$domains];
 
-		domain = {};
+		$domain = {};
 	}
 
 	function handleDomainInputKeydown(e: KeyboardEvent) {
@@ -52,87 +43,8 @@
 
 		const domainName = div.innerText;
 
-		domains = domains.filter((d) => d.domain_name !== domainName);
+		$domains = $domains.filter((d) => d.domain_name !== domainName);
 	}
-
-	async function updateDomains() {
-		const url = `${$URL}/private/updatedomains`;
-
-		const response = await fetch(url, {
-			method: 'POST',
-			mode: 'cors',
-			cache: 'no-cache',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			redirect: 'follow',
-			referrerPolicy: 'no-referrer',
-			body: JSON.stringify({
-				domain_names: domains.map((d) => d.domain_name)
-			})
-		});
-
-		const result = await response.json();
-
-		if (!response.ok) {
-			const message = result.message;
-			switch (message) {
-				case 'The access token provided is invalid or has expired. Please log in again.':
-					updateErrorMessages(message);
-					setTimeout(() => {
-						location.href = '/';
-					}, 3000);
-					return;
-				default:
-					updateErrorMessages(message);
-					return;
-			}
-		}
-
-		domains = result;
-
-		updateSuccessMessages('Domains updated successfully');
-	}
-
-	async function getDomains() {
-		const url = `${$URL}/private/getdomains`;
-
-		const response = await fetch(url, {
-			method: 'GET',
-			mode: 'cors',
-			cache: 'no-cache',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			redirect: 'follow',
-			referrerPolicy: 'no-referrer'
-		});
-
-		const result = await response.json();
-
-		if (!response.ok) {
-			const message = result.message;
-			switch (message) {
-				case 'The access token provided is invalid or has expired. Please log in again.':
-					updateErrorMessages(message);
-					setTimeout(() => {
-						location.href = '/';
-					}, 3000);
-					return;
-				default:
-					updateErrorMessages(message);
-					return;
-			}
-		}
-
-		domains = result;
-	}
-
-	onMount(() => {
-		getDomains();
-	});
 </script>
 
 <div class="vip-domains">
@@ -141,7 +53,10 @@
 		<span>Emails from any of these domains will be delivered instantly</span>
 	</div>
 	<div class="domains">
-		{#each domains as { domain_name }}
+		{#if $loading}
+			<CardSkeleton height={10} width={80} padding={0} borderRadius={0} />
+		{/if}
+		{#each $domains as { domain_name }}
 			<div class="domain">
 				<span>{domain_name}</span>
 				<svg
@@ -170,7 +85,7 @@
 			id="domain"
 			autocomplete="off"
 			placeholder="add domain..."
-			bind:value={domain.domain_name}
+			bind:value={$domain.domain_name}
 			on:blur={handleDomainInputBlur}
 			on:keydown={handleDomainInputKeydown}
 		/>
@@ -179,12 +94,13 @@
 		<Button
 			height={4}
 			width={10}
-			backgroundColor="#00a6fb"
 			borderRadius={0.3}
 			color="rgb(255, 255, 255)"
 			padding={0.5}
 			text="update"
-			onClick={updateDomains}
+			onClick={() => {
+				updateVipDomains($domains);
+			}}
 		/>
 	</div>
 </div>

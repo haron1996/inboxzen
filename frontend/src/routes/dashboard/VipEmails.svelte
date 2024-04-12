@@ -1,38 +1,29 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { URL } from '../../store';
-	import { updateErrorMessages, updateSuccessMessages } from '../../utils';
+	import { email, emails, loading } from '../../store';
+	import { updateVipEmailAddresses } from '../../utils';
 	import Button from '../Button.svelte';
-
-	interface Email {
-		vip_email_address?: string | undefined;
-		date_added?: string | undefined;
-		email_address?: string | undefined;
-	}
-
-	let email: Email = {};
-	let emails: Email[] = [];
+	import CardSkeleton from './CardSkeleton.svelte';
 
 	function handleEmailInputBlur() {
-		if (email.vip_email_address === undefined) return;
+		if ($email.vip_email_address === undefined) return;
 
 		let found = false;
 
-		emails.forEach((e) => {
-			if (e.vip_email_address === email.vip_email_address) {
+		$emails.forEach((e) => {
+			if (e.vip_email_address === $email.vip_email_address) {
 				found = true;
 				return;
 			}
 		});
 
 		if (found) {
-			email = {};
+			$email = {};
 			return;
 		}
 
-		emails = [email, ...emails];
+		$emails = [$email, ...$emails];
 
-		email = {};
+		$email = {};
 	}
 
 	function handleEmailInputKeydown(e: KeyboardEvent) {
@@ -52,87 +43,8 @@
 
 		const emailAddress = div.innerText;
 
-		emails = emails.filter((e) => e.vip_email_address !== emailAddress);
+		$emails = $emails.filter((e) => e.vip_email_address !== emailAddress);
 	}
-
-	async function updateEmails() {
-		const url = `${$URL}/private/updateemails`;
-
-		const response = await fetch(url, {
-			method: 'POST',
-			mode: 'cors',
-			cache: 'no-cache',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			redirect: 'follow',
-			referrerPolicy: 'no-referrer',
-			body: JSON.stringify({
-				emails: emails.map((e) => e.vip_email_address)
-			})
-		});
-
-		const result = await response.json();
-
-		if (!response.ok) {
-			const message = result.message;
-			switch (message) {
-				case 'The access token provided is invalid or has expired. Please log in again.':
-					updateErrorMessages(message);
-					setTimeout(() => {
-						location.href = '/';
-					}, 3000);
-					return;
-				default:
-					updateErrorMessages(message);
-					return;
-			}
-		}
-
-		emails = result;
-
-		updateSuccessMessages('Emails updated successfully');
-	}
-
-	async function getEmails() {
-		const url = `${$URL}/private/getemails`;
-
-		const response = await fetch(url, {
-			method: 'GET',
-			mode: 'cors',
-			cache: 'no-cache',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			redirect: 'follow',
-			referrerPolicy: 'no-referrer'
-		});
-
-		const result = await response.json();
-
-		if (!response.ok) {
-			const message = result.message;
-			switch (message) {
-				case 'The access token provided is invalid or has expired. Please log in again.':
-					updateErrorMessages(message);
-					setTimeout(() => {
-						location.href = '/';
-					}, 3000);
-					return;
-				default:
-					updateErrorMessages(message);
-					return;
-			}
-		}
-
-		emails = result;
-	}
-
-	onMount(() => {
-		getEmails();
-	});
 </script>
 
 <div class="vip-emails">
@@ -141,7 +53,10 @@
 		<span>Emails from any of these email addresses will be delivered instantly</span>
 	</div>
 	<div class="emails">
-		{#each emails as { vip_email_address }}
+		{#if $loading}
+			<CardSkeleton height={10} width={80} padding={0} borderRadius={0} />
+		{/if}
+		{#each $emails as { vip_email_address }}
 			<div class="email">
 				<span>{vip_email_address}</span>
 				<svg
@@ -170,7 +85,7 @@
 			id="email"
 			autocomplete="off"
 			placeholder="add email..."
-			bind:value={email.vip_email_address}
+			bind:value={$email.vip_email_address}
 			on:blur={handleEmailInputBlur}
 			on:keydown={handleEmailInputKeydown}
 		/>
@@ -179,12 +94,13 @@
 		<Button
 			height={4}
 			width={10}
-			backgroundColor="#00a6fb"
 			borderRadius={0.3}
 			color="rgb(255, 255, 255)"
 			padding={0.5}
 			text="update"
-			onClick={updateEmails}
+			onClick={() => {
+				updateVipEmailAddresses($emails);
+			}}
 		/>
 	</div>
 </div>

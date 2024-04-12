@@ -5,5 +5,6 @@ const (
 	ErrUnauthorized   = "unauthorized access"
 	ErrInternalServer = "we encountered a problem"
 	ErrInvalidToken   = "token has expired"
+	ErrConflict       = "resource already exists"
 	OK                = "OK"
 )

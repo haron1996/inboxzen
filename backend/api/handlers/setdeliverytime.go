@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
-	"github.com/charmbracelet/log"
 	"github.com/haron1996/inboxzen/api"
 	"github.com/haron1996/inboxzen/apperror"
 	"github.com/haron1996/inboxzen/messages"
@@ -67,25 +68,63 @@ func SetDeliveryTime(w http.ResponseWriter, r *http.Request) error {
 
 	email := payload.Email
 
+	timeString := fmt.Sprintf("%s:%s", req.Hour, req.Minutes)
+	fullTimeString := fmt.Sprintf("%s %s", timeString, req.AmPm)
+
 	params := sqlc.SetDeliveryTimeParams{
-		DeliveryTime: strings.Join([]string{req.Hour, req.Minutes}, ":"),
-		DeliveryAmPm: req.AmPm,
+		DeliveryTime: fullTimeString,
 		EmailAddress: email,
 	}
 
-	time, err := q.SetDeliveryTime(ctx, params)
+	dt, err := q.SetDeliveryTime(ctx, params)
+	if err != nil {
+		switch {
+		case err.Error() == `ERROR: duplicate key value violates unique constraint "deliverytime_delivery_time_email_address_key" (SQLSTATE 23505)`:
+			api.ReturnResponse(w, 409, nil, true, messages.ErrConflict)
+			return &apperror.APPError{
+				Message: "Error setting delivery time",
+				Code:    409,
+				Err:     err,
+			}
+
+		default:
+			api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+			return &apperror.APPError{
+				Message: "Error setting delivery time",
+				Code:    500,
+				Err:     err,
+			}
+		}
+	}
+
+	// Parse the time string
+	t, err := time.Parse("03:04 pm", dt.DeliveryTime)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
-			Message: "Error setting delivery time",
+			Message: "Error parsing time",
 			Code:    500,
 			Err:     err,
 		}
 	}
 
-	log.Info(time)
+	// Extract hour, minute, and am/pm
+	hour := fmt.Sprintf("%02d", t.Hour())     // Ensure hour is two digits
+	minute := fmt.Sprintf("%02d", t.Minute()) // Ensure minute is two digits
+	amPm := strings.ToLower(t.Format("pm"))
 
-	api.ReturnResponse(w, 200, time, false, messages.OK)
+	// Convert to 12-hour format
+	if t.Hour() > 12 {
+		hour = fmt.Sprintf("%02d", t.Hour()-12)
+	}
+
+	res := deliveryTime{
+		Hour:    hour,
+		Minutes: minute,
+		AmPm:    amPm,
+	}
+
+	api.ReturnResponse(w, 200, res, false, messages.OK)
 
 	return nil
 }

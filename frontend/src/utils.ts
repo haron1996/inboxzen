@@ -1,6 +1,17 @@
 import { goto } from '$app/navigation';
-import { URL, errorMessages, session, successMessages } from './store';
-import type { Session } from './types';
+import {
+	URL,
+	domains,
+	emails,
+	errorMessages,
+	keywords,
+	loading,
+	session,
+	successMessages,
+	time,
+	times
+} from './store';
+import type { Domain, Email, Keyword, Session, Time } from './types';
 
 let url: string = '';
 let result: any;
@@ -87,26 +98,6 @@ export function scrollPageToTop() {
 	});
 }
 
-export function showError(message: string) {
-	const div = document.createElement('div');
-
-	div.innerText = message;
-
-	div.classList.add('success');
-
-	document.body.appendChild(div);
-
-	const successAlerts = document.querySelectorAll('.success') as NodeListOf<HTMLDivElement> | null;
-
-	if (successAlerts === null) return;
-
-	const lastAlert = successAlerts[successAlerts.length - 1];
-
-	const rect = lastAlert.getBoundingClientRect();
-
-	console.log(rect);
-}
-
 export function updateSuccessMessages(message: string) {
 	successMessages.update((msgs) => [message, ...msgs]);
 	removeSuccessMessage();
@@ -171,12 +162,16 @@ export const checkUserLoginStatus = async () => {
 
 			switch (message) {
 				case 'token has expired':
+					updateErrorMessages(message);
 					goto('/preauth', { replaceState: true, invalidateAll: true });
 					return;
 				default:
 					updateErrorMessages(message);
 					break;
 			}
+		})
+		.finally(() => {
+			loading.set(false);
 		});
 };
 
@@ -212,6 +207,9 @@ export const getAuthURL = async () => {
 		.catch((error) => {
 			message = error.message;
 			updateErrorMessages(message);
+		})
+		.finally(() => {
+			loading.set(false);
 		});
 };
 
@@ -249,6 +247,9 @@ export const finishAuth = async (code: string) => {
 			message = error.message;
 			updateErrorMessages(message);
 			goto('/preauth', { replaceState: true, invalidateAll: true });
+		})
+		.finally(() => {
+			loading.set(false);
 		});
 };
 
@@ -279,7 +280,6 @@ export const getUserAccount = async () => {
 			return response.json();
 		})
 		.then((data: Session) => {
-			console.log(data);
 			session.set(data);
 		})
 		.catch((error) => {
@@ -293,19 +293,350 @@ export const getUserAccount = async () => {
 					updateErrorMessages(message);
 					break;
 			}
+		})
+		.finally(() => {
+			loading.set(false);
+		});
+};
+
+// update vip domains
+export const updateVipDomains = async (doms: Domain[]) => {
+	if (doms.length < 1) {
+		updateErrorMessages('at least one domain required');
+		return;
+	}
+
+	getURL();
+
+	url = `${url}/private/updatedomains`;
+
+	await fetch(url, {
+		method: 'POST',
+		mode: 'cors',
+		cache: 'no-cache',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		redirect: 'follow',
+		referrerPolicy: 'no-referrer',
+		body: JSON.stringify({
+			domain_names: doms.map((d) => d.domain_name)
+		})
+	})
+		.then(async (response) => {
+			if (!response.ok) {
+				result = await response.json();
+				message = result.message;
+				throw new Error(message);
+			}
+
+			return response.json();
+		})
+		.then((data: Domain[]) => {
+			domains.set(data);
+			updateSuccessMessages('domains updated successfully');
+		})
+		.catch((error) => {
+			message = error.message;
+			updateErrorMessages(message);
+		})
+		.finally(() => {
+			loading.set(false);
+		});
+};
+
+// get vip domains
+export const getVipDomains = async () => {
+	getURL();
+
+	url = `${url}/private/getdomains`;
+
+	await fetch(url, {
+		method: 'GET',
+		mode: 'cors',
+		cache: 'no-cache',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		redirect: 'follow',
+		referrerPolicy: 'no-referrer'
+	})
+		.then(async (response) => {
+			if (!response.ok) {
+				result = await response.json();
+				message = result.message;
+				throw new Error(message);
+			}
+
+			return response.json();
+		})
+		.then((data: Domain[]) => {
+			domains.set(data);
+		})
+		.catch((error) => {
+			message = error.message;
+			updateErrorMessages(message);
+		})
+		.finally(() => {
+			loading.set(false);
+		});
+};
+
+// update vip email addresses
+export const updateVipEmailAddresses = async (es: Email[]) => {
+	if (es.length < 1) {
+		updateErrorMessages('at least one email required');
+		return;
+	}
+
+	getURL();
+
+	url = `${url}/private/updateemails`;
+
+	await fetch(url, {
+		method: 'POST',
+		mode: 'cors',
+		cache: 'no-cache',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		redirect: 'follow',
+		referrerPolicy: 'no-referrer',
+		body: JSON.stringify({
+			emails: es.map((e) => e.vip_email_address)
+		})
+	})
+		.then(async (response) => {
+			if (!response.ok) {
+				result = await response.json();
+				message = result.message;
+				throw new Error(message);
+			}
+
+			return response.json();
+		})
+		.then((data: Email[]) => {
+			emails.set(data);
+			updateSuccessMessages('emails updated successfully');
+		})
+		.catch((error) => {
+			message = error.message;
+			updateErrorMessages(message);
+		})
+		.finally(() => {
+			loading.set(false);
+		});
+};
+
+// get vip email addresses
+export const getVipEmailAddresses = async () => {
+	getURL();
+
+	url = `${url}/private/getemails`;
+
+	await fetch(url, {
+		method: 'GET',
+		mode: 'cors',
+		cache: 'no-cache',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		redirect: 'follow',
+		referrerPolicy: 'no-referrer'
+	})
+		.then(async (response) => {
+			if (!response.ok) {
+				result = await response.json();
+				message = result.message;
+				throw new Error(message);
+			}
+
+			return response.json();
+		})
+		.then((data) => {
+			emails.set(data);
+		})
+		.catch((error) => {
+			message = error.message;
+			updateErrorMessages(message);
+		})
+		.finally(() => {
+			loading.set(false);
+		});
+};
+
+// update vip keywords
+export const updateVipKeywords = async (kws: Keyword[]) => {
+	getURL();
+
+	url = `${url}/private/updatekeywords`;
+
+	await fetch(url, {
+		method: 'POST',
+		mode: 'cors',
+		cache: 'no-cache',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		redirect: 'follow',
+		referrerPolicy: 'no-referrer',
+		body: JSON.stringify({
+			keywords: kws.map((kw) => kw.keyword)
+		})
+	})
+		.then(async (response) => {
+			if (!response.ok) {
+				result = await response.json();
+				message = result.message;
+				throw new Error(message);
+			}
+
+			return response.json();
+		})
+		.then((data: Keyword[]) => {
+			keywords.set(data);
+			updateSuccessMessages('keywords updated successfully');
+		})
+		.catch((error) => {
+			message = error.message;
+			updateErrorMessages(message);
+		})
+		.finally(() => {
+			loading.set(false);
+		});
+};
+
+// get vip keywords
+export const getVipKeywords = async () => {
+	getURL();
+
+	url = `${url}/private/getkeywords`;
+
+	await fetch(url, {
+		method: 'GET',
+		mode: 'cors',
+		cache: 'no-cache',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		redirect: 'follow',
+		referrerPolicy: 'no-referrer'
+	})
+		.then(async (response) => {
+			if (!response.ok) {
+				result = await response.json();
+				message = result.message;
+				throw new Error(message);
+			}
+
+			return response.json();
+		})
+		.then((data: Keyword[]) => {
+			keywords.set(data);
+		})
+		.catch((error) => {
+			message = error.message;
+			updateErrorMessages(message);
+		})
+		.finally(() => {
+			loading.set(false);
+		});
+};
+
+// set inbox delivery times
+export const setInboxDeliveryTime = async (params: {}) => {
+	getURL();
+
+	url = `${url}/private/setdeliverytime`;
+
+	await fetch(url, {
+		method: 'POST',
+		mode: 'cors',
+		cache: 'no-cache',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		redirect: 'follow',
+		referrerPolicy: 'no-referrer',
+		body: JSON.stringify(params)
+	})
+		.then(async (response) => {
+			if (!response.ok) {
+				result = await response.json();
+				message = result.message;
+				throw new Error(message);
+			}
+
+			return response.json();
+		})
+		.then((data: Time) => {
+			times.update((t) => [data, ...t]);
+			time.set({});
+		})
+		.catch((error) => {
+			message = error.message;
+			updateErrorMessages(message);
+		})
+		.finally(() => {
+			loading.set(false);
+		});
+};
+
+// get inbox delivery times
+export const getInboxDeliveryTimes = async () => {
+	getURL();
+
+	url = `${url}/private/getdeliverytimes`;
+
+	await fetch(url, {
+		method: 'GET',
+		mode: 'cors',
+		cache: 'no-cache',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		redirect: 'follow',
+		referrerPolicy: 'no-referrer'
+	})
+		.then(async (response) => {
+			if (!response.ok) {
+				result = await response.json();
+				message = result.message;
+				throw new Error(message);
+			}
+
+			return response.json();
+		})
+		.then((data) => {
+			console.log(data);
+		})
+		.catch((error) => {
+			message = error.message;
+			updateErrorMessages(message);
+		})
+		.finally(() => {
+			loading.set(false);
 		});
 };
 
 // get user email settings (domains, emails, keywords, delivery times)
 export const getUserEmailSettings = async () => {
-	getURL();
-
-	const urls = [
-		`${url}/private/getuseraccount`,
-		`${url}/private/getdomains`,
-		`${url}/private/getemails`,
-		`${url}/private/getkeywords`
-	];
-
-	await Promise.all([getUserAccount()]);
+	try {
+		await Promise.all([
+			getUserAccount(),
+			getVipDomains(),
+			getVipEmailAddresses(),
+			getVipKeywords()
+		]);
+	} catch (error) {
+		console.log('An error occured:', error);
+	}
 };

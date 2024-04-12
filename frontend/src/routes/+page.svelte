@@ -21,7 +21,6 @@
 		<Button
 			height={4.5}
 			width={30}
-			backgroundColor="#00a6fb"
 			borderRadius={0.6}
 			color="rgb(255, 255, 255)"
 			padding={0.5}

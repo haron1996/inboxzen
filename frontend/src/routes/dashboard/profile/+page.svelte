@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { URL, session } from '../../../store';
+	import { loading, session } from '../../../store';
 	import CardSkeleton from '../CardSkeleton.svelte';
-	import { getUserEmailSettings, scrollPageToTop, updateErrorMessages } from '../../../utils';
+	import { getUserAccount, scrollPageToTop } from '../../../utils';
 	import BackButton from '../BackButton.svelte';
 	import Button from '../../Button.svelte';
 	import ProfileCard from '../ProfileCard.svelte';
@@ -11,50 +11,14 @@
 		location.href = '/dashboard';
 	}
 
-	async function getUserAccount() {
-		const url = `${$URL}/private/getuseraccount`;
-
-		const response = await fetch(url, {
-			method: 'GET',
-			mode: 'cors',
-			cache: 'no-cache',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			redirect: 'follow',
-			referrerPolicy: 'no-referrer'
-		});
-
-		const result = await response.json();
-
-		if (!response.ok) {
-			const message = result.message;
-			switch (message) {
-				case 'The access token provided is invalid or has expired. Please log in again.':
-					updateErrorMessages(message);
-					setTimeout(() => {
-						location.href = '/';
-					}, 3000);
-					return;
-				default:
-					updateErrorMessages(message);
-					return;
-			}
-		}
-
-		session.set(result);
-	}
-
 	onMount(() => {
 		scrollPageToTop();
-		//getUserAccount();
-		getUserEmailSettings();
+		getUserAccount();
 	});
 </script>
 
 <svelte:head>
-	<title>Account Settings | Inbox Check</title>
+	<title>Profile Settings | Zenn</title>
 </svelte:head>
 
 <section>
@@ -62,76 +26,18 @@
 		<BackButton width={80} onClick={handleBackButton} />
 	</div>
 	<div class="bottom">
-		{#if $session.email && $session.emails}
-			{#if $session.email.primaryaccount}
-				<div class="card">
-					<div class="title">
-						<span>PRIMARY ACCOUNT</span>
-					</div>
-					<div class="content">
-						<ProfileCard
-							name={$session.email.account_name}
-							email={$session.email.email_address}
-							picture={$session.email.profile_picture}
-							width="30rem"
-							SVGDisplay="none"
-							onClick={() => {}}
-						/>
-						<Button
-							height={4.5}
-							width={15}
-							backgroundColor="#ff4d6d"
-							borderRadius={0.3}
-							color="rgb(255, 255, 255)"
-							padding={0.5}
-							text="delete account"
-							onClick={() => {}}
-						/>
-					</div>
-				</div>
-			{:else}
-				{#each $session.emails as email}
-					{#if email.primaryaccount}
-						<div class="card">
-							<div class="title">
-								<span>PRIMARY ACCOUNT</span>
-							</div>
-							<div class="content">
-								<ProfileCard
-									name={email.account_name}
-									email={email.email_address}
-									picture={email.profile_picture}
-									width="30rem"
-									SVGDisplay="none"
-									onClick={() => {}}
-								/>
-								<Button
-									height={4.5}
-									width={15}
-									backgroundColor="#ff4d6d"
-									borderRadius={0.3}
-									color="rgb(255, 255, 255)"
-									padding={0.5}
-									text="delete account"
-									onClick={() => {}}
-								/>
-							</div>
-						</div>
-					{/if}
-				{/each}
-			{/if}
-		{:else}
-			<CardSkeleton height={20} width={80} padding={0} borderRadius={0.5} />
-		{/if}
+		<!-- Beginning of primary account -->
+		<div class="card">
+			<div class="title">
+				<span>PRIMARY ACCOUNT</span>
+			</div>
 
-		{#if $session.email && $session.emails}
-			<div class="secondary-accounts">
-				<div class="title">
-					<span>SECONDARY ACCOUNTS</span>
-				</div>
-				<div class="contents">
-					{#if !$session.email.primaryaccount}
-						<div class="content">
+			{#if $loading}
+				<CardSkeleton height={10} width={80} padding={0} borderRadius={0} />
+			{:else if $session}
+				<div class="content">
+					{#if $session.email}
+						{#if $session.email.primaryaccount}
 							<ProfileCard
 								name={$session.email.account_name}
 								email={$session.email.email_address}
@@ -143,22 +49,57 @@
 							<Button
 								height={4.5}
 								width={15}
-								backgroundColor="#ff4d6d"
 								borderRadius={0.3}
 								color="rgb(255, 255, 255)"
 								padding={0.5}
 								text="delete account"
 								onClick={() => {}}
 							/>
-						</div>
+						{:else if $session.emails}
+							{#each $session.emails as email}
+								{#if email.primaryaccount}
+									<ProfileCard
+										name={email.account_name}
+										email={email.email_address}
+										picture={email.profile_picture}
+										width="30rem"
+										SVGDisplay="none"
+										onClick={() => {}}
+									/>
+									<Button
+										height={4.5}
+										width={15}
+										borderRadius={0.3}
+										color="rgb(255, 255, 255)"
+										padding={0.5}
+										text="delete account"
+										onClick={() => {}}
+									/>
+								{/if}
+							{/each}
+						{/if}
 					{/if}
-					{#each $session.emails as email}
-						{#if !email.primaryaccount}
+				</div>
+			{/if}
+		</div>
+
+		<!-- End of primary account -->
+
+		<div class="secondary-accounts">
+			<div class="title">
+				<span>SECONDARY ACCOUNTS</span>
+			</div>
+			<div class="contents">
+				{#if $loading}
+					<CardSkeleton height={10} width={80} padding={0} borderRadius={0} />
+				{:else if $session}
+					{#if $session.email}
+						{#if !$session.email.primaryaccount}
 							<div class="content">
 								<ProfileCard
-									name={email.account_name}
-									email={email.email_address}
-									picture={email.profile_picture}
+									name={$session.email.account_name}
+									email={$session.email.email_address}
+									picture={$session.email.profile_picture}
 									width="30rem"
 									SVGDisplay="none"
 									onClick={() => {}}
@@ -166,7 +107,6 @@
 								<Button
 									height={4.5}
 									width={15}
-									backgroundColor="#ff4d6d"
 									borderRadius={0.3}
 									color="rgb(255, 255, 255)"
 									padding={0.5}
@@ -175,42 +115,71 @@
 								/>
 							</div>
 						{/if}
-					{/each}
-				</div>
+					{/if}
+					{#if $session.emails}
+						{#each $session.emails as email}
+							{#if !email.primaryaccount}
+								<div class="content">
+									<ProfileCard
+										name={email.account_name}
+										email={email.email_address}
+										picture={email.profile_picture}
+										width="30rem"
+										SVGDisplay="none"
+										onClick={() => {}}
+									/>
+									<Button
+										height={4.5}
+										width={15}
+										borderRadius={0.3}
+										color="rgb(255, 255, 255)"
+										padding={0.5}
+										text="delete account"
+										onClick={() => {}}
+									/>
+								</div>
+							{/if}
+						{/each}
+					{/if}
+				{/if}
 			</div>
-		{:else}
-			<CardSkeleton height={40} width={80} padding={0} borderRadius={0.5} />
-		{/if}
+		</div>
 
-		{#if $session.email}
-			<div class="card">
-				<div class="title">
-					<span>ACTIVE ACCOUNT</span>
-				</div>
-				<div class="content">
-					<ProfileCard
-						name={$session.email.account_name}
-						email={$session.email.email_address}
-						picture={$session.email.profile_picture}
-						width="30rem"
-						SVGDisplay="none"
-						onClick={() => {}}
-					/>
-					<Button
-						height={4.5}
-						width={15}
-						backgroundColor="#ff4d6d"
-						borderRadius={0.3}
-						color="rgb(255, 255, 255)"
-						padding={0.5}
-						text="delete account"
-						onClick={() => {}}
-					/>
-				</div>
+		<!-- End of secondary accounts -->
+
+		<div class="card">
+			<div class="title">
+				<span>ACTIVE ACCOUNT</span>
 			</div>
-		{:else}
-			<CardSkeleton height={20} width={80} padding={0} borderRadius={0.5} />
-		{/if}
+			{#if $loading}
+				<CardSkeleton height={10} width={80} padding={0} borderRadius={0} />
+			{:else}
+				<div class="content">
+					{#if $session}
+						{#if $session.email}
+							<ProfileCard
+								name={$session.email.account_name}
+								email={$session.email.email_address}
+								picture={$session.email.profile_picture}
+								width="30rem"
+								SVGDisplay="none"
+								onClick={() => {}}
+							/>
+							<Button
+								height={4.5}
+								width={15}
+								borderRadius={0.3}
+								color="rgb(255, 255, 255)"
+								padding={0.5}
+								text="delete account"
+								onClick={() => {}}
+							/>
+						{/if}
+					{/if}
+				</div>
+			{/if}
+		</div>
+		<!-- End of active account account -->
 	</div>
 </section>
 

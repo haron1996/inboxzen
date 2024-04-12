@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/haron1996/inboxzen/api"
@@ -32,26 +33,76 @@ func AuthenticateRequest() func(next http.Handler) http.Handler {
 				return
 			}
 
-			if payload != nil {
-				account, err := getUser(ctx, payload.UserID)
+			account, err := getUser(ctx, payload.UserID)
+			if err != nil {
+				log.Errorf("Errror getting user: %v", err)
+
+				userID := payload.UserID
+				email := payload.Email
+				issuedAt := time.Now().UTC()
+				duration := 1 * time.Microsecond
+
+				t, _, err := paseto.CreateToken(userID, email, issuedAt, duration)
 				if err != nil {
-					log.Errorf("Errror getting user: %v", err)
-					api.ReturnResponse(w, 401, nil, true, messages.ErrInvalidToken)
+					log.Errorf("Error creating token: %v", err)
+					api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 					return
 				}
 
-				if payload.IssuedAt.Unix() != account.LastLogin.Time.Unix() {
-					log.Error("Invalid access token")
-					api.ReturnResponse(w, 401, nil, true, messages.ErrInvalidToken)
-					return
+				session := http.Cookie{
+					Name:     "session",
+					Value:    t,
+					Path:     "/",
+					Secure:   true,
+					SameSite: http.SameSiteStrictMode,
+					HttpOnly: true,
+					Expires:  time.Now().UTC().Add(-24 * time.Hour),
 				}
 
-				ctx := context.WithValue(r.Context(), pLoad, payload)
+				http.SetCookie(w, &session)
 
-				next.ServeHTTP(w, r.WithContext(ctx))
+				api.ReturnResponse(w, 401, nil, true, messages.ErrInvalidToken)
+
+				return
 			}
-		}
 
+			if payload.IssuedAt.Unix() != account.LastLogin.Time.Unix() {
+				log.Error("Invalid access token")
+
+				userID := payload.UserID
+				email := payload.Email
+				issuedAt := time.Now().UTC()
+				duration := 1 * time.Microsecond
+
+				t, _, err := paseto.CreateToken(userID, email, issuedAt, duration)
+				if err != nil {
+					log.Errorf("Error creating token: %v", err)
+					api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+					return
+				}
+
+				session := http.Cookie{
+					Name:     "session",
+					Value:    t,
+					Path:     "/",
+					Secure:   true,
+					SameSite: http.SameSiteStrictMode,
+					HttpOnly: true,
+					Expires:  time.Now().UTC().Add(-24 * time.Hour),
+				}
+
+				http.SetCookie(w, &session)
+
+				api.ReturnResponse(w, 401, nil, true, messages.ErrInvalidToken)
+
+				return
+			}
+
+			ctx = context.WithValue(r.Context(), pLoad, payload)
+
+			next.ServeHTTP(w, r.WithContext(ctx))
+
+		}
 		return http.HandlerFunc(fn)
 	}
 }
@@ -61,12 +112,10 @@ func verifyToken(r *http.Request) (*paseto.PayLoad, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	payload, err := paseto.VerifyToken(c.Value)
 	if err != nil {
 		return nil, err
 	}
-
 	return payload, nil
 }
 
@@ -75,16 +124,12 @@ func getUser(ctx context.Context, userID string) (*sqlc.User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("something went wrong: %v", err)
 	}
-
 	pool, err := pgxpool.New(ctx, config.DBString)
 	if err != nil {
 		return nil, fmt.Errorf("something went wrong: %v", err)
 	}
-
 	defer pool.Close()
-
 	q := sqlc.New(pool)
-
 	user, err := q.GetUser(ctx, userID)
 	if err != nil {
 		switch {
@@ -94,6 +139,5 @@ func getUser(ctx context.Context, userID string) (*sqlc.User, error) {
 			return nil, fmt.Errorf("error getting user: %v", err)
 		}
 	}
-
 	return &user, nil
 }

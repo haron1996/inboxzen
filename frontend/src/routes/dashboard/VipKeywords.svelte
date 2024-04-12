@@ -1,38 +1,29 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { URL } from '../../store';
-	import { updateErrorMessages, updateSuccessMessages } from '../../utils';
+	import { keyword, keywords, loading } from '../../store';
+	import { updateVipKeywords } from '../../utils';
 	import Button from '../Button.svelte';
-
-	interface Keyword {
-		keyword?: string | undefined;
-		date_added?: string | undefined;
-		email_address?: string | undefined;
-	}
-
-	let keyword: Keyword = {};
-	let keywords: Keyword[] = [];
+	import CardSkeleton from './CardSkeleton.svelte';
 
 	function handleKeywordInputBlur() {
-		if (keyword.keyword === undefined) return;
+		if ($keyword.keyword === undefined) return;
 
 		let found = false;
 
-		keywords.forEach((kw) => {
-			if (kw.keyword === keyword.keyword) {
+		$keywords.forEach((kw) => {
+			if (kw.keyword === $keyword.keyword) {
 				found = true;
 				return;
 			}
 		});
 
 		if (found) {
-			keyword = {};
+			$keyword = {};
 			return;
 		}
 
-		keywords = [keyword, ...keywords];
+		$keywords = [$keyword, ...$keywords];
 
-		keyword = {};
+		$keyword = {};
 	}
 
 	function handleKeywordInputKeydown(e: KeyboardEvent) {
@@ -50,89 +41,10 @@
 
 		if (div === null) return;
 
-		const keyword = div.innerText;
+		const keywrd = div.innerText;
 
-		keywords = keywords.filter((kw) => kw.keyword !== keyword);
+		$keywords = $keywords.filter((kw) => kw.keyword !== keywrd);
 	}
-
-	async function updateKeywords() {
-		const url = `${$URL}/private/updatekeywords`;
-
-		const response = await fetch(url, {
-			method: 'POST',
-			mode: 'cors',
-			cache: 'no-cache',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			redirect: 'follow',
-			referrerPolicy: 'no-referrer',
-			body: JSON.stringify({
-				keywords: keywords.map((kw) => kw.keyword)
-			})
-		});
-
-		const result = await response.json();
-
-		if (!response.ok) {
-			const message = result.message;
-			switch (message) {
-				case 'The access token provided is invalid or has expired. Please log in again.':
-					updateErrorMessages(message);
-					setTimeout(() => {
-						location.href = '/';
-					}, 3000);
-					return;
-				default:
-					updateErrorMessages(message);
-					return;
-			}
-		}
-
-		keywords = result;
-
-		updateSuccessMessages('Keywords updated successfully');
-	}
-
-	async function getKeywords() {
-		const url = `${$URL}/private/getkeywords`;
-
-		const response = await fetch(url, {
-			method: 'GET',
-			mode: 'cors',
-			cache: 'no-cache',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			redirect: 'follow',
-			referrerPolicy: 'no-referrer'
-		});
-
-		const result = await response.json();
-
-		if (!response.ok) {
-			const message = result.message;
-			switch (message) {
-				case 'The access token provided is invalid or has expired. Please log in again.':
-					updateErrorMessages(message);
-					setTimeout(() => {
-						location.href = '/';
-					}, 3000);
-					return;
-				default:
-					updateErrorMessages(message);
-					return;
-			}
-		}
-
-		keywords = result;
-	}
-
-	onMount(() => {
-		getKeywords();
-	});
 </script>
 
 <div class="vip-keywords">
@@ -141,7 +53,10 @@
 		<span>Emails containing any of these keywords will be delivered instantly</span>
 	</div>
 	<div class="keywords">
-		{#each keywords as { keyword }}
+		{#if $loading}
+			<CardSkeleton height={10} width={80} padding={0} borderRadius={0} />
+		{/if}
+		{#each $keywords as { keyword }}
 			<div class="keyword">
 				<span>{keyword}</span>
 				<svg
@@ -170,7 +85,7 @@
 			id="keyword"
 			autocomplete="off"
 			placeholder="add keyword..."
-			bind:value={keyword.keyword}
+			bind:value={$keyword.keyword}
 			on:blur={handleKeywordInputBlur}
 			on:keydown={handleKeywordInputKeydown}
 		/>
@@ -179,12 +94,13 @@
 		<Button
 			height={4}
 			width={10}
-			backgroundColor="#00a6fb"
 			borderRadius={0.3}
 			color="rgb(255, 255, 255)"
 			padding={0.5}
 			text="update"
-			onClick={updateKeywords}
+			onClick={() => {
+				updateVipKeywords($keywords);
+			}}
 		/>
 	</div>
 </div>

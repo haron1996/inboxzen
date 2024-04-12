@@ -1,7 +1,6 @@
 <script lang="ts">
 	export let width = 0;
 	export let height = 0;
-	export let backgroundColor = '';
 	export let padding = 0;
 	export let borderRadius = 0;
 	export let color = '';
@@ -11,7 +10,7 @@
 </script>
 
 <button
-	style="width: {width}rem; height: {height}rem; background-color: {backgroundColor}; padding: {padding}rem; border-radius: {borderRadius}rem; color: {color}"
+	style="width: {width}rem; height: {height}rem; padding: {padding}rem; border-radius: {borderRadius}rem; color: {color}"
 	on:click|preventDefault={onClick}
 >
 	<span style="font-weight: {fontWeight};">{text}</span>

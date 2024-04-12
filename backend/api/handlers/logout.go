@@ -22,9 +22,9 @@ func LogOut(w http.ResponseWriter, r *http.Request) error {
 
 	email := payload.Email
 
-	duration := 1 * time.Second
+	duration := 1 * time.Microsecond
 
-	t, p, err := paseto.CreateToken(userID, email, issuedAt, duration)
+	t, _, err := paseto.CreateToken(userID, email, issuedAt, duration)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
@@ -41,7 +41,7 @@ func LogOut(w http.ResponseWriter, r *http.Request) error {
 		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 		HttpOnly: true,
-		Expires:  p.Expiry,
+		Expires:  time.Now().UTC().Add(-24 * time.Hour),
 	}
 
 	http.SetCookie(w, &session)

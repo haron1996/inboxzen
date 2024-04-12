@@ -1,6 +1,6 @@
 -- name: SetDeliveryTime :one
-insert into deliveryTime (delivery_time, delivery_am_pm, email_address)
-values ($1, $2, $3)
+insert into deliveryTime (delivery_time, email_address)
+values ($1, $2)
 returning *;
 
 -- name: DeleteDeliveryTime :exec
