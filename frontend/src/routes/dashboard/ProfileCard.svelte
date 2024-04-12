@@ -25,6 +25,7 @@
 	</div>
 	<div class="right">
 		<svg
+			id="profile-card-svg"
 			width="24px"
 			height="24px"
 			stroke-width="1.5"
@@ -110,6 +111,7 @@
 				border: 0.1rem solid rgba(0, 0, 0, 0.1);
 				height: 2rem;
 				width: 2rem;
+				transition: all 0.3s ease-in-out;
 
 				path {
 					stroke: $light-black;

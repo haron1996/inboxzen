@@ -180,7 +180,7 @@
 			height={4}
 			width={10}
 			backgroundColor="#00a6fb"
-			borderRadius={0.6}
+			borderRadius={0.3}
 			color="rgb(255, 255, 255)"
 			padding={0.5}
 			text="update"
@@ -261,6 +261,8 @@
 			input {
 				border: none;
 				outline: none;
+				font-family: $spline;
+				padding: 0.5rem;
 			}
 		}
 
@@ -268,6 +270,7 @@
 			display: flex;
 			align-items: center;
 			justify-content: flex-end;
+			padding: 1rem;
 		}
 	}
 </style>

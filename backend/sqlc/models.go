@@ -9,8 +9,8 @@ import (
 )
 
 type Deliverytime struct {
-	DeliveryTime pgtype.Time        `json:"delivery_time"`
-	DeliveryAmPm pgtype.Text        `json:"delivery_am_pm"`
+	DeliveryTime string             `json:"delivery_time"`
+	DeliveryAmPm string             `json:"delivery_am_pm"`
 	DateAdded    pgtype.Timestamptz `json:"date_added"`
 	DateUpdated  pgtype.Timestamptz `json:"date_updated"`
 	EmailAddress string             `json:"email_address"`

@@ -1,42 +1,42 @@
 html {
-    font-size: 62.5%;
-    scroll-behavior: smooth;
-    -webkit-user-select: none;
-    -ms-user-select: none;
-     user-select: none;
+	font-size: 62.5%;
+	scroll-behavior: smooth;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 
-    ::-webkit-scrollbar {
-        width: .8rem;
-        height: 0.5rem;
-        background-color: transparent;
-        display: none;
-    }
+	::-webkit-scrollbar {
+		width: 0.8rem;
+		height: 0.5rem;
+		background-color: transparent;
+		display: none;
+	}
 
-    ::-webkit-scrollbar-track {
-        background-color: transparent;
-    }
+	::-webkit-scrollbar-track {
+		background-color: transparent;
+	}
 
-    ::-webkit-scrollbar-thumb {
-        background-color: #31363F;
-    }
+	::-webkit-scrollbar-thumb {
+		background-color: #31363f;
+	}
 
-    ::-webkit-scrollbar-track-piece {
-        background-color: transparent;
-    }
+	::-webkit-scrollbar-track-piece {
+		background-color: transparent;
+	}
 }
 
 * {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-    overflow-x: hidden;
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+	overflow-x: hidden;
 }
 
 .success {
-    z-index: 1000;
+	z-index: 1000;
 	position: fixed;
 	left: 50%;
-    top: 2%;
+	top: 2%;
 	transform: translateX(-50%);
 	min-width: max-content;
 	display: flex;
@@ -57,26 +57,26 @@ html {
 }
 
 .error {
-    z-index: 1000;
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    min-width: max-content;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 5rem;
-    background-color: #ffcccc;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    transition: all 0.3s ease-in-out;
-    box-shadow:
-        rgba(9, 30, 66, 0.25) 0px 4px 8px -2px,
-        rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
-    top: 2%;
-    display: none;
-    font-family: $spline;
-    font-size: 1.3rem;
-    font-weight: 500;
-    color: rgb(155 28 28/1);
+	z-index: 1000;
+	position: fixed;
+	left: 50%;
+	transform: translateX(-50%);
+	min-width: max-content;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 5rem;
+	background-color: #ffcccc;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	transition: all 0.3s ease-in-out;
+	box-shadow:
+		rgba(9, 30, 66, 0.25) 0px 4px 8px -2px,
+		rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
+	top: 2%;
+	display: none;
+	font-family: $spline;
+	font-size: 1.3rem;
+	font-weight: 500;
+	color: rgb(155 28 28/1);
 }

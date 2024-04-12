@@ -1,28 +1,5 @@
 <script lang="ts">
-	import { URL } from '../store';
-
-	async function handleButtonClick() {
-		const url = `${$URL}/private/checkloginstatus`;
-
-		const response = await fetch(url, {
-			method: 'GET',
-			mode: 'cors',
-			cache: 'no-cache',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			redirect: 'follow',
-			referrerPolicy: 'no-referrer'
-		});
-
-		if (!response.ok) {
-			location.href = '/preauth';
-			return;
-		}
-
-		location.href = '/dashboard';
-	}
+	import { checkUserLoginStatus } from '../utils';
 </script>
 
 <header>
@@ -31,21 +8,40 @@
 			<svg
 				width="20px"
 				height="20px"
+				stroke-width="1.5"
 				viewBox="0 0 24 24"
 				fill="none"
 				xmlns="http://www.w3.org/2000/svg"
-				color="#00a6fb"
-				stroke-width="1.5"
+				color="#00a1fb"
 				><path
-					fill-rule="evenodd"
-					clip-rule="evenodd"
-					d="M3.6 2.25C2.85442 2.25 2.25 2.85441 2.25 3.6V20.4C2.25 21.1456 2.85441 21.75 3.6 21.75H20.4C21.1456 21.75 21.75 21.1456 21.75 20.4V3.6C21.75 2.85442 21.1456 2.25 20.4 2.25H3.6ZM17.5303 9.03033C17.8232 8.73744 17.8232 8.26256 17.5303 7.96967C17.2374 7.67678 16.7626 7.67678 16.4697 7.96967L10 14.4393L7.53033 11.9697C7.23744 11.6768 6.76256 11.6768 6.46967 11.9697C6.17678 12.2626 6.17678 12.7374 6.46967 13.0303L9.46967 16.0303C9.76256 16.3232 10.2374 16.3232 10.5303 16.0303L17.5303 9.03033Z"
-					fill="#00a6fb"
+					d="M14.5714 15.0036L15.4286 16.8486C15.4286 16.8486 19.2857 17.6678 19.2857 19.6162C19.2857 21 17.5714 21 17.5714 21H13L10.75 19.75"
+					stroke="#00a1fb"
+					stroke-width="1.5"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				></path><path
+					d="M9.42864 15.0036L8.5715 16.8486C8.5715 16.8486 4.71436 17.6678 4.71436 19.6162C4.71436 21 6.42864 21 6.42864 21H8.50007L10.7501 19.75L13.5001 18"
+					stroke="#00a1fb"
+					stroke-width="1.5"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				></path><path
+					d="M3 15.9261C3 15.9261 5.14286 15.4649 6.42857 15.0036C7.71429 8.54595 11.5714 9.00721 12 9.00721C12.4286 9.00721 16.2857 8.54595 17.5714 15.0036C18.8571 15.4649 21 15.9261 21 15.9261"
+					stroke="#00a1fb"
+					stroke-width="1.5"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				></path><path
+					d="M12 7C13.1046 7 14 6.10457 14 5C14 3.89543 13.1046 3 12 3C10.8954 3 10 3.89543 10 5C10 6.10457 10.8954 7 12 7Z"
+					stroke="#00a1fb"
+					stroke-width="1.5"
+					stroke-linecap="round"
+					stroke-linejoin="round"
 				></path></svg
 			>
-			<span>INBOX CHECK</span>
+			<span>ZENN.EMAIL</span>
 		</a>
-		<span role="none" on:click={handleButtonClick}>Sign in</span>
+		<span role="none" on:click={checkUserLoginStatus}>Sign in</span>
 	</div>
 </header>
 

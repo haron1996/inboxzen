@@ -2,8 +2,8 @@
 drop table if exists deliveryTime cascade;
 
 create table deliveryTime (
-    delivery_time time not null,
-    delivery_am_pm text check (delivery_am_pm in ('AM', 'PM')),
+    delivery_time text not null,
+    delivery_am_pm text not null check (delivery_am_pm in ('am', 'pm')),
     date_added timestamptz not null default current_timestamp,
     date_updated timestamptz,
     email_address text not null,

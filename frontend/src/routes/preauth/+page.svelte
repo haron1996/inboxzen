@@ -1,33 +1,6 @@
 <script lang="ts">
-	import { URL } from '../../store';
-	import { updateErrorMessages } from '../../utils';
+	import { getAuthURL } from '../../utils';
 	import Button from '../Button.svelte';
-
-	async function getAuthURL() {
-		const url = `${$URL}/user/getauthurl`;
-
-		const response = await fetch(url, {
-			method: 'GET',
-			mode: 'cors',
-			cache: 'no-cache',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			redirect: 'follow',
-			referrerPolicy: 'no-referrer'
-		});
-
-		const result = await response.json();
-
-		if (!response.ok) {
-			const message = result.message;
-			updateErrorMessages(message);
-			return;
-		}
-
-		location.replace(result);
-	}
 </script>
 
 <svelte:head>
@@ -61,7 +34,7 @@
 		</ul>
 		<Button
 			height={4}
-			width={50}
+			width={45}
 			backgroundColor="#00a6fb"
 			borderRadius={0.6}
 			color="rgb(255, 255, 255)"
@@ -75,11 +48,13 @@
 <style lang="scss">
 	section {
 		width: 100dvw;
-		min-height: 90dvh;
+		min-height: 100dvh;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		padding: 2rem;
+		background-color: #4e54c8;
+		background-image: linear-gradient(to right top, #4e54c8, #8f94fb, #b4b8fd, #cad3ff, #e5f0ff);
 
 		.card {
 			width: 50rem;
@@ -87,7 +62,7 @@
 			flex-direction: column;
 			gap: 4rem;
 			line-height: 1.5;
-			padding: 0.5rem;
+			padding: 1rem;
 
 			.title {
 				display: flex;

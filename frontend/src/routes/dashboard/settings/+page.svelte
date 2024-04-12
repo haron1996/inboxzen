@@ -5,7 +5,8 @@
 	import VipDomains from '../VipDomains.svelte';
 	import VipEmails from '../VipEmails.svelte';
 	import VipKeywords from '../VipKeywords.svelte';
-	import { scrollPageToTop, updateErrorMessages } from '../../../utils';
+	import { getUserEmailSettings, scrollPageToTop, updateErrorMessages } from '../../../utils';
+	import DeliveryTime from '../DeliveryTime.svelte';
 
 	function handleBackButton() {
 		location.href = '/dashboard';
@@ -48,12 +49,13 @@
 
 	onMount(() => {
 		scrollPageToTop();
-		getUserAccount();
+		//getUserAccount();
+		getUserEmailSettings();
 	});
 </script>
 
 <svelte:head>
-	<title>Settings | Inbox Check</title>
+	<title>SETTINGS | ZENN.EMAIL</title>
 </svelte:head>
 
 <section>
@@ -64,6 +66,7 @@
 		<VipDomains />
 		<VipEmails />
 		<VipKeywords />
+		<DeliveryTime />
 	</div>
 </section>
 
@@ -73,9 +76,10 @@
 		min-height: 100dvh;
 		display: flex;
 		flex-direction: column;
-		background-color: $gray;
 		gap: 4rem;
 		padding: 2rem;
+		background-color: #4e54c8;
+		background-image: linear-gradient(to right top, #4e54c8, #8f94fb, #b4b8fd, #cad3ff, #e5f0ff);
 
 		.top {
 			width: 100%;

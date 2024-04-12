@@ -79,7 +79,7 @@
 						<Button
 							height={4.5}
 							width={15}
-							backgroundColor="#E74646"
+							backgroundColor="#ff4d6d"
 							borderRadius={0.3}
 							color="rgb(255, 255, 255)"
 							padding={0.5}
@@ -107,7 +107,7 @@
 								<Button
 									height={4.5}
 									width={15}
-									backgroundColor="#E74646"
+									backgroundColor="#ff4d6d"
 									borderRadius={0.3}
 									color="rgb(255, 255, 255)"
 									padding={0.5}
@@ -142,7 +142,7 @@
 							<Button
 								height={4.5}
 								width={15}
-								backgroundColor="#E74646"
+								backgroundColor="#ff4d6d"
 								borderRadius={0.3}
 								color="rgb(255, 255, 255)"
 								padding={0.5}
@@ -165,7 +165,7 @@
 								<Button
 									height={4.5}
 									width={15}
-									backgroundColor="#E74646"
+									backgroundColor="#ff4d6d"
 									borderRadius={0.3}
 									color="rgb(255, 255, 255)"
 									padding={0.5}
@@ -198,7 +198,7 @@
 					<Button
 						height={4.5}
 						width={15}
-						backgroundColor="#E74646"
+						backgroundColor="#ff4d6d"
 						borderRadius={0.3}
 						color="rgb(255, 255, 255)"
 						padding={0.5}
@@ -219,8 +219,9 @@
 		width: 100dvw;
 		display: flex;
 		flex-direction: column;
-		background-color: $gray;
 		gap: 3rem;
+		background-color: #4e54c8;
+		background-image: linear-gradient(to right top, #4e54c8, #8f94fb, #b4b8fd, #cad3ff, #e5f0ff);
 
 		.top {
 			min-height: 10dvh;

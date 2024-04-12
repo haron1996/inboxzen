@@ -9,20 +9,20 @@
 
 <style lang="scss">
 	button {
-		background-color: $black-2;
+		border: none;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		border: 0.1rem solid $black-1;
-		box-shadow:
-			rgba(67, 71, 85, 0.27) 0rem 0rem 0.25em,
-			rgba(90, 125, 188, 0.05) 0rem 0.25em 1em;
 		min-width: 10rem;
 		gap: 1rem;
 		height: 4rem;
 		border-radius: 0.3rem;
 		cursor: pointer;
 		padding: 0rem 1rem;
+		background-color: #4e54c8;
+		background-image: linear-gradient(to right top, #4e54c8, #8f94fb, #b4b8fd, #cad3ff, #e5f0ff);
+		box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+		transition: box-shadow 0.3s ease;
 
 		span {
 			color: $white;
@@ -33,7 +33,7 @@
 		}
 
 		&:hover {
-			background-color: $black-1;
+			box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 		}
 	}
 </style>

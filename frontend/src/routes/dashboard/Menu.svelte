@@ -142,6 +142,7 @@
 		overflow-y: auto;
 		cursor: pointer;
 		border-radius: 0.3rem;
+		transition: all 0.3s ease-in-out;
 
 		div {
 			width: 100%;

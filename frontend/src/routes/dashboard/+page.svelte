@@ -1,45 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { URL, session } from '../../store';
-	import { hideMenu, showMenu, updateErrorMessages } from '../../utils';
+	import { session } from '../../store';
+	import { getUserAccount, hideMenu, showMenu } from '../../utils';
 	import CardSkeleton from './CardSkeleton.svelte';
 	import Menu from './Menu.svelte';
 	import ProfileCard from './ProfileCard.svelte';
-
-	async function getUserAccount() {
-		const url = `${$URL}/private/getuseraccount`;
-
-		const response = await fetch(url, {
-			method: 'GET',
-			mode: 'cors',
-			cache: 'no-cache',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			redirect: 'follow',
-			referrerPolicy: 'no-referrer'
-		});
-
-		const result = await response.json();
-
-		if (!response.ok) {
-			const message = result.message;
-			switch (message) {
-				case 'The access token provided is invalid or has expired. Please log in again.':
-					updateErrorMessages(message);
-					setTimeout(() => {
-						location.href = '/';
-					}, 3000);
-					return;
-				default:
-					updateErrorMessages(message);
-					return;
-			}
-		}
-
-		session.set(result);
-	}
 
 	onMount(() => {
 		getUserAccount();
@@ -77,6 +42,8 @@
 		display: flex;
 		flex-direction: column;
 		background-color: $gray;
+		background-color: #4e54c8;
+		background-image: linear-gradient(to right top, #4e54c8, #8f94fb, #b4b8fd, #cad3ff, #e5f0ff);
 
 		.top {
 			width: 100%;

@@ -1,72 +1,52 @@
 <script lang="ts">
-	import { URL } from '../store';
+	import { checkUserLoginStatus } from '../utils';
 	import Button from './Button.svelte';
+	import Features from './Features.svelte';
 	import Header from './Header.svelte';
-
-	async function handleButtonClick() {
-		const url = `${$URL}/private/checkloginstatus`;
-
-		const response = await fetch(url, {
-			method: 'GET',
-			mode: 'cors',
-			cache: 'no-cache',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			redirect: 'follow',
-			referrerPolicy: 'no-referrer'
-		});
-
-		if (!response.ok) {
-			location.href = '/preauth';
-			return;
-		}
-
-		location.href = '/dashboard';
-	}
 </script>
 
 <svelte:head>
-	<title>Inbox Check | Way To Inbox Zero</title>
+	<title>ZENN.EMAIL: BECOME A GMAIL PRO</title>
 	<meta name="description" content="Reclaim control of your inbox with InboxZen" />
 </svelte:head>
 
-<Header />
-
 <section>
 	<div class="offer">
-		<h1>Manage Senders and Delivery Times with Our Gmail Plugin.</h1>
+		<h1>Become a Gmail Pro</h1>
 		<p>
-			Effortlessly take charge of your inbox: control approved senders and schedule message delivery
-			with ease.
+			Goodbye inbox clutter. Say hello to inbox zero. Zenn helps you take control of who makes it to
+			your inbox and at what time. This way, you reclaim the time wasted on your inbox, increase
+			your productivity, and make Gmail fun again,
 		</p>
+		<Button
+			height={4.5}
+			width={30}
+			backgroundColor="#00a6fb"
+			borderRadius={0.6}
+			color="rgb(255, 255, 255)"
+			padding={0.5}
+			text="Get Started Now"
+			fontWeight={900}
+			onClick={checkUserLoginStatus}
+		/>
 	</div>
-	<Button
-		height={5}
-		width={40}
-		backgroundColor="#00a6fb"
-		borderRadius={0.6}
-		color="rgb(255, 255, 255)"
-		padding={0.5}
-		text="Get Started Now"
-		onClick={handleButtonClick}
-	/>
 </section>
+
+<Features />
 
 <style lang="scss">
 	section {
 		width: 100dvw;
-		min-height: 70dvh;
+		min-height: 100dvh;
 		height: max-content;
 		overflow-y: auto;
-		background-color: $white;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 4rem;
 		padding: 2rem;
+		background-color: #4e54c8;
+		background-image: linear-gradient(to right top, #4e54c8, #8f94fb, #b4b8fd, #cad3ff, #e5f0ff);
 
 		.offer {
 			display: flex;
@@ -74,22 +54,22 @@
 			align-items: center;
 			justify-content: center;
 			text-align: center;
-			gap: 1rem;
-			width: 40%;
+			gap: 3rem;
+			width: 50rem;
+			padding: 1rem;
 
 			h1 {
-				font-size: 2.4rem;
+				font-size: 4rem;
 				font-weight: 900;
-				text-transform: capitalize;
-				color: $black;
-				font-family: $spline;
+				color: black;
+				font-family: 'Arial MT Black', sans-serif;
 			}
 
 			p {
-				font-family: 'Spline Sans', sans-serif;
-				font-size: 1.8rem;
-				line-height: 1.5;
+				font-size: 2rem;
+				line-height: 1.6;
 				color: $light-black;
+				font-family: 'Product Sans', sans-serif;
 			}
 		}
 	}

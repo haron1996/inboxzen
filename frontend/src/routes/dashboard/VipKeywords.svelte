@@ -43,6 +43,18 @@
 		handleKeywordInputBlur();
 	}
 
+	function removeVIPKeyword(e: MouseEvent) {
+		const t = e.currentTarget as HTMLElement;
+
+		const div = t.closest('.keyword') as HTMLDivElement | null;
+
+		if (div === null) return;
+
+		const keyword = div.innerText;
+
+		keywords = keywords.filter((kw) => kw.keyword !== keyword);
+	}
+
 	async function updateKeywords() {
 		const url = `${$URL}/private/updatekeywords`;
 
@@ -140,6 +152,8 @@
 					fill="none"
 					xmlns="http://www.w3.org/2000/svg"
 					color="#000000"
+					role="none"
+					on:click={removeVIPKeyword}
 					><path
 						d="M6.75827 17.2426L12.0009 12M17.2435 6.75736L12.0009 12M12.0009 12L6.75827 6.75736M12.0009 12L17.2435 17.2426"
 						stroke="#000000"
@@ -166,7 +180,7 @@
 			height={4}
 			width={10}
 			backgroundColor="#00a6fb"
-			borderRadius={0.6}
+			borderRadius={0.3}
 			color="rgb(255, 255, 255)"
 			padding={0.5}
 			text="update"
@@ -247,6 +261,8 @@
 			input {
 				border: none;
 				outline: none;
+				font-family: $spline;
+				padding: 0.5rem;
 			}
 		}
 
@@ -254,6 +270,7 @@
 			display: flex;
 			align-items: center;
 			justify-content: flex-end;
+			padding: 1rem;
 		}
 	}
 </style>
