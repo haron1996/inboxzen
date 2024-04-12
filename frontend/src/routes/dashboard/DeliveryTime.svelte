@@ -91,8 +91,8 @@
 			/>
 			<input
 				type="text"
-				name="hour"
-				id="hour"
+				name="minutes"
+				id="minutes"
 				autocomplete="off"
 				placeholder="Minutes"
 				bind:value={minutes}
@@ -100,8 +100,8 @@
 			/>
 			<input
 				type="text"
-				name="hour"
-				id="hour"
+				name="am_pm"
+				id="am_pm"
 				autocomplete="off"
 				placeholder="am/pm"
 				bind:value={am_pm}
@@ -121,8 +121,8 @@
 			<div class="time">
 				<input
 					type="text"
-					name="hour"
-					id="hour"
+					name="set_hour"
+					id="set_hour"
 					autocomplete="off"
 					placeholder="Hour"
 					value="06"
@@ -130,8 +130,8 @@
 				/>
 				<input
 					type="text"
-					name="hour"
-					id="hour"
+					name="set_minutes"
+					id="set_minutes"
 					autocomplete="off"
 					placeholder="Minutes"
 					value="00"
@@ -139,8 +139,8 @@
 				/>
 				<input
 					type="text"
-					name="hour"
-					id="hour"
+					name="set_am_pm"
+					id="set_am_pm"
 					autocomplete="off"
 					placeholder="am/pm"
 					value="am"

@@ -10,9 +10,3 @@
 <ErrorAlerts />
 
 <slot />
-
-<style>
-	@import url('https://fonts.cdnfonts.com/css/satoshi');
-	@import url('https://fonts.cdnfonts.com/css/arial-mt');
-	@import url('https://fonts.cdnfonts.com/css/google-sans');
-</style>
