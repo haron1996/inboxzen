@@ -10,20 +10,26 @@ import (
 )
 
 const addKeyword = `-- name: AddKeyword :one
-insert into vipKeyword (keyword, email_address)
-values ($1, $2)
-returning keyword, date_added, email_address
+insert into vipKeyword (id, keyword, email_address)
+values ($1, $2, $3)
+returning id, keyword, date_added, email_address
 `
 
 type AddKeywordParams struct {
+	ID           string `json:"id"`
 	Keyword      string `json:"keyword"`
 	EmailAddress string `json:"email_address"`
 }
 
 func (q *Queries) AddKeyword(ctx context.Context, arg AddKeywordParams) (Vipkeyword, error) {
-	row := q.db.QueryRow(ctx, addKeyword, arg.Keyword, arg.EmailAddress)
+	row := q.db.QueryRow(ctx, addKeyword, arg.ID, arg.Keyword, arg.EmailAddress)
 	var i Vipkeyword
-	err := row.Scan(&i.Keyword, &i.DateAdded, &i.EmailAddress)
+	err := row.Scan(
+		&i.ID,
+		&i.Keyword,
+		&i.DateAdded,
+		&i.EmailAddress,
+	)
 	return i, err
 }
 
@@ -37,7 +43,7 @@ func (q *Queries) DeleteKeywords(ctx context.Context, emailAddress string) error
 }
 
 const getKeywords = `-- name: GetKeywords :many
-select keyword, date_added, email_address from vipKeyword where email_address = $1
+select id, keyword, date_added, email_address from vipKeyword where email_address = $1
 `
 
 func (q *Queries) GetKeywords(ctx context.Context, emailAddress string) ([]Vipkeyword, error) {
@@ -49,7 +55,12 @@ func (q *Queries) GetKeywords(ctx context.Context, emailAddress string) ([]Vipke
 	items := []Vipkeyword{}
 	for rows.Next() {
 		var i Vipkeyword
-		if err := rows.Scan(&i.Keyword, &i.DateAdded, &i.EmailAddress); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Keyword,
+			&i.DateAdded,
+			&i.EmailAddress,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

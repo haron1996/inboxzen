@@ -1,10 +1,11 @@
 interface UserEmailAccount {
-	account_name: string;
-	date_added: string;
-	email_address: string;
-	primaryaccount: boolean;
-	profile_picture: string;
-	user_id: string;
+	id?: string;
+	account_name?: string;
+	date_added?: string;
+	email_address?: string;
+	primaryaccount?: boolean;
+	profile_picture?: string;
+	user_id?: string;
 }
 
 // user session interface
@@ -15,6 +16,7 @@ export interface Session {
 
 // vip domains interface
 export interface Domain {
+	id?: string | undefined;
 	date_added?: string | undefined;
 	domain_name?: string | undefined;
 	email_address?: string | undefined;
@@ -22,6 +24,7 @@ export interface Domain {
 
 // vip email addresses interface
 export interface Email {
+	id?: string | undefined;
 	vip_email_address?: string | undefined;
 	date_added?: string | undefined;
 	email_address?: string | undefined;
@@ -29,6 +32,7 @@ export interface Email {
 
 // vip keywords interface
 export interface Keyword {
+	id?: string | undefined;
 	keyword?: string | undefined;
 	date_added?: string | undefined;
 	email_address?: string | undefined;
@@ -36,6 +40,7 @@ export interface Keyword {
 
 // inbox delivey times interface
 export interface Time {
+	id?: string | undefined;
 	hour?: string | undefined;
 	minutes?: string | undefined;
 	am_pm?: string | undefined;

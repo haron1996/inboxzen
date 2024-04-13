@@ -10,20 +10,26 @@ import (
 )
 
 const addDomain = `-- name: AddDomain :one
-insert into vipDomain (domain_name, email_address)
-values ($1, $2)
-returning domain_name, date_added, email_address
+insert into vipDomain (id, domain_name, email_address)
+values ($1, $2, $3)
+returning id, domain_name, date_added, email_address
 `
 
 type AddDomainParams struct {
+	ID           string `json:"id"`
 	DomainName   string `json:"domain_name"`
 	EmailAddress string `json:"email_address"`
 }
 
 func (q *Queries) AddDomain(ctx context.Context, arg AddDomainParams) (Vipdomain, error) {
-	row := q.db.QueryRow(ctx, addDomain, arg.DomainName, arg.EmailAddress)
+	row := q.db.QueryRow(ctx, addDomain, arg.ID, arg.DomainName, arg.EmailAddress)
 	var i Vipdomain
-	err := row.Scan(&i.DomainName, &i.DateAdded, &i.EmailAddress)
+	err := row.Scan(
+		&i.ID,
+		&i.DomainName,
+		&i.DateAdded,
+		&i.EmailAddress,
+	)
 	return i, err
 }
 
@@ -37,7 +43,7 @@ func (q *Queries) DeleteDomains(ctx context.Context, emailAddress string) error 
 }
 
 const getDomains = `-- name: GetDomains :many
-select domain_name, date_added, email_address from vipDomain where email_address = $1
+select id, domain_name, date_added, email_address from vipDomain where email_address = $1
 `
 
 func (q *Queries) GetDomains(ctx context.Context, emailAddress string) ([]Vipdomain, error) {
@@ -49,7 +55,12 @@ func (q *Queries) GetDomains(ctx context.Context, emailAddress string) ([]Vipdom
 	items := []Vipdomain{}
 	for rows.Next() {
 		var i Vipdomain
-		if err := rows.Scan(&i.DomainName, &i.DateAdded, &i.EmailAddress); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.DomainName,
+			&i.DateAdded,
+			&i.EmailAddress,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

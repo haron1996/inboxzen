@@ -1,6 +1,6 @@
 -- name: AddDomain :one
-insert into vipDomain (domain_name, email_address)
-values ($1, $2)
+insert into vipDomain (id, domain_name, email_address)
+values ($1, $2, $3)
 returning *;
 
 -- name: GetDomains :many

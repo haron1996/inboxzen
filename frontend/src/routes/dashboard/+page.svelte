@@ -1,18 +1,24 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { session } from '../../store';
-	import { getUserAccount, hideMenu, showMenu } from '../../utils';
+	import { getUserEmailSettings, hideMenu, showMenu } from '../../utils';
 	import CardSkeleton from './CardSkeleton.svelte';
 	import Menu from './Menu.svelte';
 	import ProfileCard from './ProfileCard.svelte';
+	import VipDomains from './VipDomains.svelte';
+	import VipEmails from './VipEmails.svelte';
+	import VipKeywords from './VipKeywords.svelte';
+	import DeliveryTime from './DeliveryTime.svelte';
 
 	onMount(() => {
-		getUserAccount();
+		setTimeout(() => {
+			getUserEmailSettings();
+		}, 1000);
 	});
 </script>
 
 <svelte:head>
-	<title>Dashboard | Inbox Check</title>
+	<title>Dashboard | Zenn</title>
 </svelte:head>
 
 <svelte:window on:resize={hideMenu} />
@@ -32,18 +38,22 @@
 			<CardSkeleton height={4.5} />
 		{/if}
 	</div>
-	<div class="bottom"></div>
+	<div class="bottom">
+		<VipDomains />
+		<VipEmails />
+		<VipKeywords />
+		<DeliveryTime />
+	</div>
 </section>
 
 <style lang="scss">
 	section {
-		min-height: 100dvh;
 		width: 100dvw;
+		min-height: 100dvh;
 		display: flex;
 		flex-direction: column;
-		background-color: $gray;
-		background-color: #4e54c8;
-		background-image: linear-gradient(to right top, #4e54c8, #8f94fb, #b4b8fd, #cad3ff, #e5f0ff);
+		gap: 4rem;
+		padding: 2rem;
 
 		.top {
 			width: 100%;
@@ -58,7 +68,11 @@
 		.bottom {
 			min-height: 90dvh;
 			width: 100%;
-			padding: 1rem;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 5rem;
 		}
 	}
 </style>

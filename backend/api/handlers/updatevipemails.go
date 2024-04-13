@@ -11,6 +11,7 @@ import (
 	"github.com/haron1996/inboxzen/mw"
 	"github.com/haron1996/inboxzen/paseto"
 	"github.com/haron1996/inboxzen/sqlc"
+	"github.com/haron1996/inboxzen/utils"
 	"github.com/haron1996/inboxzen/viper"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -76,6 +77,7 @@ func UpdateVipEmails(w http.ResponseWriter, r *http.Request) error {
 
 	for _, e := range req.Emails {
 		params := sqlc.AddVipEmailParams{
+			ID:              utils.RandomString(),
 			VipEmailAddress: e,
 			EmailAddress:    email,
 		}
@@ -108,7 +110,7 @@ func UpdateVipEmails(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	api.ReturnResponse(w, 200, emails, false, messages.OK)
+	api.ReturnResponse(w, 200, emails, false, "")
 
 	return nil
 }

@@ -2,6 +2,7 @@
 drop table if exists vipEmailAddress cascade;
 
 create table vipEmailAddress(
+    id text not null primary key,
     vip_email_address text not null,
     date_added timestamptz not null default current_timestamp,
     email_address text not null,

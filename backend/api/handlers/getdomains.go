@@ -56,7 +56,7 @@ func GetDomains(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	api.ReturnResponse(w, 200, domains, false, messages.OK)
+	api.ReturnResponse(w, 200, domains, false, "")
 
 	return nil
 }

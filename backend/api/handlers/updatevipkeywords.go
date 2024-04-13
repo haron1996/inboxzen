@@ -11,6 +11,7 @@ import (
 	"github.com/haron1996/inboxzen/mw"
 	"github.com/haron1996/inboxzen/paseto"
 	"github.com/haron1996/inboxzen/sqlc"
+	"github.com/haron1996/inboxzen/utils"
 	"github.com/haron1996/inboxzen/viper"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -76,6 +77,7 @@ func UpdateVipKeywords(w http.ResponseWriter, r *http.Request) error {
 
 	for _, kw := range req.Keywords {
 		params := sqlc.AddKeywordParams{
+			ID:           utils.RandomString(),
 			Keyword:      kw,
 			EmailAddress: email,
 		}
@@ -108,7 +110,7 @@ func UpdateVipKeywords(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	api.ReturnResponse(w, 200, keywords, false, messages.OK)
+	api.ReturnResponse(w, 200, keywords, false, "")
 
 	return nil
 }

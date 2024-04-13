@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { checkUserLoginStatus } from '../utils';
 	import Button from './Button.svelte';
-	import Features from './Features.svelte';
 	import Header from './Header.svelte';
 </script>
 
@@ -10,33 +9,33 @@
 	<meta name="description" content="Reclaim control of your inbox with InboxZen" />
 </svelte:head>
 
+<Header />
+
 <section>
 	<div class="offer">
-		<h1>Become a Gmail Pro</h1>
-		<p>
+		<p>Take Control of Your Gmail Inbox</p>
+		<span>
 			Goodbye inbox clutter. Say hello to inbox zero. Zenn helps you take control of who makes it to
 			your inbox and at what time. This way, you reclaim the time wasted on your inbox, increase
-			your productivity, and make Gmail fun again,
-		</p>
+			your productivity, and make Gmail fun again.
+		</span>
 		<Button
 			height={4.5}
 			width={30}
 			borderRadius={0.6}
-			color="rgb(255, 255, 255)"
+			color="#0d1b2a"
 			padding={0.5}
-			text="Get Started Now"
-			fontWeight={900}
+			text="CONTINUE WITH GOOGLE"
+			fontWeight={500}
 			onClick={checkUserLoginStatus}
 		/>
 	</div>
 </section>
 
-<Features />
-
 <style lang="scss">
 	section {
 		width: 100dvw;
-		min-height: 100dvh;
+		min-height: 90dvh;
 		height: max-content;
 		overflow-y: auto;
 		display: flex;
@@ -44,8 +43,6 @@
 		align-items: center;
 		justify-content: center;
 		padding: 2rem;
-		background-color: #4e54c8;
-		background-image: linear-gradient(to right top, #4e54c8, #8f94fb, #b4b8fd, #cad3ff, #e5f0ff);
 
 		.offer {
 			display: flex;
@@ -56,19 +53,19 @@
 			gap: 3rem;
 			width: 50rem;
 			padding: 1rem;
-
-			h1 {
-				font-size: 4rem;
-				font-weight: 900;
-				color: black;
-				font-family: 'Arial MT Black', sans-serif;
-			}
+			color: #0d1b2a;
+			font-family: 'Jost', sans-serif;
+			font-optical-sizing: auto;
 
 			p {
 				font-size: 2rem;
-				line-height: 1.6;
+				font-weight: 600;
+				text-transform: uppercase;
+			}
+
+			span {
+				font-size: 1.5rem;
 				color: $light-black;
-				font-family: 'Product Sans', sans-serif;
 			}
 		}
 	}

@@ -7,10 +7,6 @@
 		location.href = '/dashboard/profile';
 	}
 
-	function goToSettings() {
-		location.href = '/dashboard/settings';
-	}
-
 	function goToPreAuth() {
 		location.href = '/preauth';
 	}
@@ -101,16 +97,9 @@
 	<div class="add-account" role="none" on:click={goToPreAuth}>
 		<span>ADD ACCOUNT</span>
 	</div>
-	<div class="support">
-		<span>CONTACT SUPPORT</span>
-	</div>
-	<div class="settings" role="none" on:click={goToSettings}>
-		<span>ACCOUNT SETTINGS</span>
-	</div>
 	<div class="account" role="none" on:click={goToAccount}>
 		<span>PROFILE SETTINGS</span>
 	</div>
-
 	{#if $session && $session.emails}
 		{#each $session.emails as { account_name, email_address, profile_picture }}
 			<div class="account">
@@ -133,16 +122,14 @@
 	menu {
 		position: absolute;
 		background-color: $white;
-		box-shadow:
-			rgba(255, 255, 255, 0.2) 0rem 0rem 0rem 0.1rem inset,
-			rgba(0, 0, 0, 0.9) 0rem 0rem 0rem 0.1rem;
 		display: none;
 		flex-direction: column;
 		min-height: max-content;
 		overflow-y: auto;
 		cursor: pointer;
 		border-radius: 0.3rem;
-		transition: all 0.3s ease-in-out;
+		transition: all 0.3s linear;
+		border: 0.2rem solid #0d1b2a;
 
 		div {
 			width: 100%;
@@ -159,16 +146,12 @@
 			}
 
 			&:hover {
-				background-color: #4e54c8;
-				background-image: linear-gradient(
-					to right top,
-					#4e54c8,
-					#8f94fb,
-					#b4b8fd,
-					#cad3ff,
-					#e5f0ff
-				);
+				background-color: #edede9;
 			}
+		}
+
+		div:not(:last-child) {
+			border-bottom: 0.1rem solid #dad7cd;
 		}
 	}
 </style>

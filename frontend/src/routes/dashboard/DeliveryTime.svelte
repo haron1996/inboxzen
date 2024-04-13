@@ -1,11 +1,9 @@
 <script lang="ts">
-	import { time, times } from '../../store';
-	import { setInboxDeliveryTime, updateErrorMessages } from '../../utils';
+	import { loading, time, times } from '../../store';
+	import type { Time } from '../../types';
+	import { deleteInboxDeliveryTime, setInboxDeliveryTime, updateErrorMessages } from '../../utils';
 	import Button from '../Button.svelte';
-
-	// let hour = '';
-	// let minutes = '';
-	// let am_pm = '';
+	import CardSkeleton from './CardSkeleton.svelte';
 
 	function handleHourInputBlur() {
 		if ($time.hour === '' || $time.hour === undefined) return;
@@ -42,7 +40,25 @@
 			am_pm: $time.am_pm
 		};
 
-		setInboxDeliveryTime(data);
+		setInboxDeliveryTime(data, $times);
+	}
+
+	function handleDeleteDeliveryTime(e: MouseEvent) {
+		const t = e.currentTarget as HTMLButtonElement | null;
+
+		if (t === null) return;
+
+		const div = t.closest('.time') as HTMLDivElement | null;
+
+		if (div === null) return;
+
+		const id = div.dataset.id;
+
+		const data = {
+			id: id
+		};
+
+		deleteInboxDeliveryTime(data, $times);
 	}
 </script>
 
@@ -83,53 +99,61 @@
 				height={4}
 				width={10}
 				borderRadius={0.3}
-				color="rgb(255, 255, 255)"
+				color="#0d1b2a"
 				padding={0.5}
 				text="set"
 				onClick={handleSetInboxDeliveryTime}
 			/>
 		</div>
 		<div class="set-times">
-			{#each $times as t}
-				<div class="time">
-					<input
-						type="text"
-						name="set_hour"
-						id="set_hour"
-						autocomplete="off"
-						placeholder="Hour"
-						value={t.hour}
-						disabled
-					/>
-					<input
-						type="text"
-						name="set_minutes"
-						id="set_minutes"
-						autocomplete="off"
-						placeholder="Minutes"
-						value={t.minutes}
-						disabled
-					/>
-					<input
-						type="text"
-						name="set_am_pm"
-						id="set_am_pm"
-						autocomplete="off"
-						placeholder="am/pm"
-						value={t.am_pm}
-						disabled
-					/>
-					<Button
-						height={4}
-						width={10}
-						borderRadius={0.3}
-						color="rgb(255, 255, 255)"
-						padding={0.5}
-						text="delete"
-						onClick={() => {}}
-					/>
-				</div>
-			{/each}
+			{#if $loading}
+				<CardSkeleton height={10} width={80} padding={0} borderRadius={0} />
+			{/if}
+			{#if $times}
+				{#each $times as t}
+					<div class="time" data-id={t.id}>
+						<input
+							type="text"
+							name="set_hour"
+							id="set_hour"
+							autocomplete="off"
+							placeholder="Hour"
+							value={t.hour}
+							disabled
+						/>
+						<input
+							type="text"
+							name="set_minutes"
+							id="set_minutes"
+							autocomplete="off"
+							placeholder="Minutes"
+							value={t.minutes}
+							disabled
+						/>
+						<input
+							type="text"
+							name="set_am_pm"
+							id="set_am_pm"
+							autocomplete="off"
+							placeholder="am/pm"
+							value={t.am_pm}
+							disabled
+						/>
+						<Button
+							borderColor="#ff686b"
+							height={4}
+							width={10}
+							borderRadius={0.3}
+							color="#ff686b"
+							padding={0.5}
+							text="delete"
+							onClick={(e) => {
+								handleDeleteDeliveryTime(e);
+							}}
+						/>
+					</div>
+				{/each}
+			{/if}
 		</div>
 	</div>
 </div>
@@ -144,8 +168,7 @@
 		border-radius: 0.3rem;
 		padding: 2rem;
 		gap: 2rem;
-		border: 0.1rem solid $black-4;
-		box-shadow: rgba(0, 0, 0, 0.16) 0rem 0.1rem 0.4rem;
+		border: 0.1rem solid #0d1b2a;
 
 		.top {
 			display: flex;
@@ -171,7 +194,7 @@
 		.times {
 			display: flex;
 			flex-direction: column;
-			gap: 6rem;
+			gap: 1rem;
 
 			.setter {
 				display: flex;
@@ -182,16 +205,20 @@
 				input {
 					outline: none;
 					border: none;
-					border-bottom: 0.1rem solid $blue;
+					border-bottom: 0.1rem solid #0d1b2a;
 					padding: 0.5rem;
 					text-transform: lowercase;
+					font-family: $spline;
+					font-size: 1.2rem;
+					font-weight: 500;
+					letter-spacing: 0.1rem;
 				}
 			}
 
 			.set-times {
 				display: flex;
 				flex-direction: column;
-				gap: 3rem;
+				gap: 1rem;
 
 				.time {
 					display: flex;
@@ -204,6 +231,11 @@
 						border: none;
 						padding: 0.5rem;
 						text-transform: lowercase;
+						font-family: $spline;
+						font-size: 1.2rem;
+						font-weight: 500;
+						letter-spacing: 0.1rem;
+						text-transform: uppercase;
 					}
 				}
 			}

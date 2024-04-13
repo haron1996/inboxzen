@@ -1,6 +1,6 @@
 -- name: AddVipEmail :one
-insert into vipEmailAddress (vip_email_address, email_address)
-values ($1, $2)
+insert into vipEmailAddress (id, vip_email_address, email_address)
+values ($1, $2, $3)
 returning *;
 
 -- name: GetVipEmails :many

@@ -13,11 +13,13 @@ import (
 	"github.com/haron1996/inboxzen/mw"
 	"github.com/haron1996/inboxzen/paseto"
 	"github.com/haron1996/inboxzen/sqlc"
+	"github.com/haron1996/inboxzen/utils"
 	"github.com/haron1996/inboxzen/viper"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type deliveryTime struct {
+	ID      string `json:"id"`
 	Hour    string `json:"hour"`
 	Minutes string `json:"minutes"`
 	AmPm    string `json:"am_pm"`
@@ -72,6 +74,7 @@ func SetDeliveryTime(w http.ResponseWriter, r *http.Request) error {
 	fullTimeString := fmt.Sprintf("%s %s", timeString, req.AmPm)
 
 	params := sqlc.SetDeliveryTimeParams{
+		ID:           utils.RandomString(),
 		DeliveryTime: fullTimeString,
 		EmailAddress: email,
 	}
@@ -97,8 +100,7 @@ func SetDeliveryTime(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	// Parse the time string
-	t, err := time.Parse("03:04 pm", dt.DeliveryTime)
+	hour, minute, amPm, err := parseTime(dt)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
@@ -106,6 +108,24 @@ func SetDeliveryTime(w http.ResponseWriter, r *http.Request) error {
 			Code:    500,
 			Err:     err,
 		}
+	}
+
+	res := deliveryTime{
+		ID:      dt.ID,
+		Hour:    hour,
+		Minutes: minute,
+		AmPm:    amPm,
+	}
+
+	api.ReturnResponse(w, 200, res, false, "")
+
+	return nil
+}
+
+func parseTime(dt sqlc.Deliverytime) (string, string, string, error) {
+	t, err := time.Parse("03:04 pm", dt.DeliveryTime)
+	if err != nil {
+		return "", "", "", err
 	}
 
 	// Extract hour, minute, and am/pm
@@ -118,13 +138,5 @@ func SetDeliveryTime(w http.ResponseWriter, r *http.Request) error {
 		hour = fmt.Sprintf("%02d", t.Hour()-12)
 	}
 
-	res := deliveryTime{
-		Hour:    hour,
-		Minutes: minute,
-		AmPm:    amPm,
-	}
-
-	api.ReturnResponse(w, 200, res, false, messages.OK)
-
-	return nil
+	return hour, minute, amPm, nil
 }

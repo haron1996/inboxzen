@@ -9,7 +9,6 @@
 
 <style lang="scss">
 	button {
-		border: none;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -19,21 +18,16 @@
 		border-radius: 0.3rem;
 		cursor: pointer;
 		padding: 0rem 1rem;
-		background-color: #4e54c8;
-		background-image: linear-gradient(to right top, #4e54c8, #8f94fb, #b4b8fd, #cad3ff, #e5f0ff);
-		box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+		background-color: #fff;
 		transition: box-shadow 0.3s ease;
+		border: 0.2rem solid #0d1b2a;
 
 		span {
-			color: $white;
+			color: #0d1b2a;
 			font-family: $spline;
 			letter-spacing: 0.1rem;
 			font-size: 1.2rem;
 			font-weight: 500;
-		}
-
-		&:hover {
-			box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 		}
 	}
 </style>

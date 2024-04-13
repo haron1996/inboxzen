@@ -15,7 +15,7 @@
 		z-index: 1000;
 		position: fixed;
 		left: 50%;
-		top: 2%;
+		bottom: 2%;
 		transform: translateX(-50%);
 		min-width: max-content;
 		display: flex;

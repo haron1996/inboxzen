@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { loading, session } from '../../../store';
 	import CardSkeleton from '../CardSkeleton.svelte';
-	import { getUserAccount, scrollPageToTop } from '../../../utils';
+	import { getUserAccount } from '../../../utils';
 	import BackButton from '../BackButton.svelte';
 	import Button from '../../Button.svelte';
 	import ProfileCard from '../ProfileCard.svelte';
@@ -12,8 +12,9 @@
 	}
 
 	onMount(() => {
-		scrollPageToTop();
-		getUserAccount();
+		setTimeout(() => {
+			getUserAccount();
+		}, 1000);
 	});
 </script>
 
@@ -50,7 +51,7 @@
 								height={4.5}
 								width={15}
 								borderRadius={0.3}
-								color="rgb(255, 255, 255)"
+								color="#0d1b2a"
 								padding={0.5}
 								text="delete account"
 								onClick={() => {}}
@@ -70,7 +71,7 @@
 										height={4.5}
 										width={15}
 										borderRadius={0.3}
-										color="rgb(255, 255, 255)"
+										color="#0d1b2a"
 										padding={0.5}
 										text="delete account"
 										onClick={() => {}}
@@ -108,7 +109,7 @@
 									height={4.5}
 									width={15}
 									borderRadius={0.3}
-									color="rgb(255, 255, 255)"
+									color="#0d1b2a"
 									padding={0.5}
 									text="delete account"
 									onClick={() => {}}
@@ -132,7 +133,7 @@
 										height={4.5}
 										width={15}
 										borderRadius={0.3}
-										color="rgb(255, 255, 255)"
+										color="#0d1b2a"
 										padding={0.5}
 										text="delete account"
 										onClick={() => {}}
@@ -140,6 +141,10 @@
 								</div>
 							{/if}
 						{/each}
+					{:else}
+						<div class="no-content">
+							<p>No secondary emails</p>
+						</div>
 					{/if}
 				{/if}
 			</div>
@@ -169,7 +174,7 @@
 								height={4.5}
 								width={15}
 								borderRadius={0.3}
-								color="rgb(255, 255, 255)"
+								color="#0d1b2a"
 								padding={0.5}
 								text="delete account"
 								onClick={() => {}}
@@ -190,8 +195,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 3rem;
-		background-color: #4e54c8;
-		background-image: linear-gradient(to right top, #4e54c8, #8f94fb, #b4b8fd, #cad3ff, #e5f0ff);
 
 		.top {
 			min-height: 10dvh;
@@ -215,8 +218,7 @@
 				flex-direction: column;
 				width: 80rem;
 				min-height: max-content;
-				border: 0.1rem solid $black-4;
-				box-shadow: rgba(0, 0, 0, 0.16) 0rem 0.1rem 0.4rem;
+				border: 0.1rem solid #0d1b2a;
 				background-color: $white;
 				border-radius: 0.3rem;
 
@@ -250,8 +252,7 @@
 				flex-direction: column;
 				width: 80rem;
 				min-height: max-content;
-				border: 0.1rem solid $black-4;
-				box-shadow: rgba(0, 0, 0, 0.16) 0rem 0.1rem 0.4rem;
+				border: 0.1rem solid #0d1b2a;
 				background-color: $white;
 				border-radius: 0.3rem;
 
@@ -281,6 +282,22 @@
 						align-items: center;
 						justify-content: space-between;
 						padding: 1rem;
+					}
+
+					.no-content {
+						min-height: 10rem;
+						height: 1rem;
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						padding: 1rem;
+
+						p {
+							font-family: $spline;
+							font-size: 1.1rem;
+							font-weight: 500;
+							padding: 1rem;
+						}
 					}
 				}
 			}

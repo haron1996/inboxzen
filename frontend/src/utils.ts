@@ -91,13 +91,6 @@ export function hideMenu() {
 	svg.style.transform = 'rotate(0)';
 }
 
-export function scrollPageToTop() {
-	window.scrollTo({
-		top: 0,
-		behavior: 'smooth'
-	});
-}
-
 export function updateSuccessMessages(message: string) {
 	successMessages.update((msgs) => [message, ...msgs]);
 	removeSuccessMessage();
@@ -301,11 +294,6 @@ export const getUserAccount = async () => {
 
 // update vip domains
 export const updateVipDomains = async (doms: Domain[]) => {
-	if (doms.length < 1) {
-		updateErrorMessages('at least one domain required');
-		return;
-	}
-
 	getURL();
 
 	url = `${url}/private/updatedomains`;
@@ -386,11 +374,6 @@ export const getVipDomains = async () => {
 
 // update vip email addresses
 export const updateVipEmailAddresses = async (es: Email[]) => {
-	if (es.length < 1) {
-		updateErrorMessages('at least one email required');
-		return;
-	}
-
 	getURL();
 
 	url = `${url}/private/updateemails`;
@@ -550,7 +533,7 @@ export const getVipKeywords = async () => {
 };
 
 // set inbox delivery times
-export const setInboxDeliveryTime = async (params: {}) => {
+export const setInboxDeliveryTime = async (params: {}, dts: Time[]) => {
 	getURL();
 
 	url = `${url}/private/setdeliverytime`;
@@ -577,7 +560,14 @@ export const setInboxDeliveryTime = async (params: {}) => {
 			return response.json();
 		})
 		.then((data: Time) => {
-			times.update((t) => [data, ...t]);
+			if (dts === null) {
+				let ts: Time[] = [];
+				ts = [data, ...ts];
+				times.set(ts);
+			} else {
+				times.update((t) => [data, ...t]);
+			}
+
 			time.set({});
 		})
 		.catch((error) => {
@@ -615,8 +605,49 @@ export const getInboxDeliveryTimes = async () => {
 
 			return response.json();
 		})
-		.then((data) => {
-			console.log(data);
+		.then((data: Time[]) => {
+			times.set(data);
+		})
+		.catch((error) => {
+			message = error.message;
+			updateErrorMessages(message);
+		})
+		.finally(() => {
+			loading.set(false);
+		});
+};
+
+// delete inbox delivery time
+export const deleteInboxDeliveryTime = async (params: {}, dts: Time[]) => {
+	getURL();
+
+	url = `${url}/private/deletedeliverytime`;
+
+	await fetch(url, {
+		method: 'DELETE',
+		mode: 'cors',
+		cache: 'no-cache',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		redirect: 'follow',
+		referrerPolicy: 'no-referrer',
+		body: JSON.stringify(params)
+	})
+		.then(async (response) => {
+			if (!response.ok) {
+				result = await response.json();
+				message = result.message;
+				throw new Error(message);
+			}
+
+			return response.json();
+		})
+		.then((data: Time) => {
+			dts = dts.filter((dt) => dt.id !== data.id);
+			times.set(dts);
+			updateSuccessMessages('time deleted successfully');
 		})
 		.catch((error) => {
 			message = error.message;
@@ -634,7 +665,8 @@ export const getUserEmailSettings = async () => {
 			getUserAccount(),
 			getVipDomains(),
 			getVipEmailAddresses(),
-			getVipKeywords()
+			getVipKeywords(),
+			getInboxDeliveryTimes()
 		]);
 	} catch (error) {
 		console.log('An error occured:', error);

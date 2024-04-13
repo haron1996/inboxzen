@@ -95,7 +95,7 @@
 			height={4}
 			width={10}
 			borderRadius={0.3}
-			color="rgb(255, 255, 255)"
+			color="#0d1b2a"
 			padding={0.5}
 			text="update"
 			onClick={() => {
@@ -115,8 +115,7 @@
 		border-radius: 0.3rem;
 		padding: 2rem;
 		gap: 2rem;
-		border: 0.1rem solid $black-4;
-		box-shadow: rgba(0, 0, 0, 0.16) 0rem 0.1rem 0.4rem;
+		border: 0.1rem solid #0d1b2a;
 
 		.top {
 			display: flex;

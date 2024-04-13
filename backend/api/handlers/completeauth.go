@@ -15,6 +15,7 @@ import (
 	"github.com/haron1996/inboxzen/messages"
 	"github.com/haron1996/inboxzen/paseto"
 	"github.com/haron1996/inboxzen/sqlc"
+	"github.com/haron1996/inboxzen/utils"
 	"github.com/haron1996/inboxzen/viper"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -161,6 +162,7 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 					userID := user.ID
 
 					accountParams := sqlc.AddEmailParams{
+						ID:             utils.RandomString(),
 						EmailAddress:   ui.Email,
 						AccountName:    ui.Name,
 						ProfilePicture: ui.Picture,
@@ -344,6 +346,7 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	addEmailParams := sqlc.AddEmailParams{
+		ID:             utils.RandomString(),
 		EmailAddress:   ui.Email,
 		AccountName:    ui.Name,
 		ProfilePicture: ui.Picture,

@@ -2,7 +2,8 @@
 drop table if exists email cascade;
 
 create table email(
-    email_address text not null primary key,
+    id text not null primary key,
+    email_address text not null unique,
     account_name text not null,
     profile_picture text not null,
     date_added timestamptz not null default current_timestamp,

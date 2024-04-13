@@ -1,6 +1,6 @@
 -- name: AddKeyword :one
-insert into vipKeyword (keyword, email_address)
-values ($1, $2)
+insert into vipKeyword (id, keyword, email_address)
+values ($1, $2, $3)
 returning *;
 
 -- name: GetKeywords :many

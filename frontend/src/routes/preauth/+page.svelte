@@ -35,8 +35,8 @@
 		<Button
 			height={4}
 			width={45}
-			borderRadius={0.6}
-			color="rgb(255, 255, 255)"
+			borderRadius={0.3}
+			color="#0d1b2a"
 			padding={0.5}
 			text="continue"
 			onClick={getAuthURL}
@@ -52,8 +52,6 @@
 		align-items: center;
 		justify-content: center;
 		padding: 2rem;
-		background-color: #4e54c8;
-		background-image: linear-gradient(to right top, #4e54c8, #8f94fb, #b4b8fd, #cad3ff, #e5f0ff);
 
 		.card {
 			width: 50rem;
@@ -62,6 +60,9 @@
 			gap: 2rem;
 			line-height: 1.5;
 			padding: 1rem;
+			color: #0d1b2a;
+			font-family: 'Jost', sans-serif;
+			font-optical-sizing: auto;
 
 			.title {
 				display: flex;
@@ -69,10 +70,9 @@
 				justify-content: flex-start;
 
 				p {
-					font-family: $spline;
 					font-size: 1.3rem;
-					color: $black;
-					font-weight: 600;
+					font-weight: 500;
+					text-transform: uppercase;
 				}
 			}
 
@@ -88,17 +88,14 @@
 					gap: 0.5rem;
 
 					p {
-						font-family: $spline;
-						font-size: 1.3rem;
+						font-size: 1.2rem;
 						font-weight: 500;
-						color: $black;
 						text-transform: none;
+						text-transform: uppercase;
 					}
 
 					span {
-						font-family: $spline;
 						font-size: 1.3rem;
-						color: $black;
 					}
 				}
 			}

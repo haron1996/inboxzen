@@ -10,20 +10,26 @@ import (
 )
 
 const addVipEmail = `-- name: AddVipEmail :one
-insert into vipEmailAddress (vip_email_address, email_address)
-values ($1, $2)
-returning vip_email_address, date_added, email_address
+insert into vipEmailAddress (id, vip_email_address, email_address)
+values ($1, $2, $3)
+returning id, vip_email_address, date_added, email_address
 `
 
 type AddVipEmailParams struct {
+	ID              string `json:"id"`
 	VipEmailAddress string `json:"vip_email_address"`
 	EmailAddress    string `json:"email_address"`
 }
 
 func (q *Queries) AddVipEmail(ctx context.Context, arg AddVipEmailParams) (Vipemailaddress, error) {
-	row := q.db.QueryRow(ctx, addVipEmail, arg.VipEmailAddress, arg.EmailAddress)
+	row := q.db.QueryRow(ctx, addVipEmail, arg.ID, arg.VipEmailAddress, arg.EmailAddress)
 	var i Vipemailaddress
-	err := row.Scan(&i.VipEmailAddress, &i.DateAdded, &i.EmailAddress)
+	err := row.Scan(
+		&i.ID,
+		&i.VipEmailAddress,
+		&i.DateAdded,
+		&i.EmailAddress,
+	)
 	return i, err
 }
 
@@ -37,7 +43,7 @@ func (q *Queries) DeleteVipEmails(ctx context.Context, emailAddress string) erro
 }
 
 const getVipEmails = `-- name: GetVipEmails :many
-select vip_email_address, date_added, email_address from vipEmailAddress where email_address = $1
+select id, vip_email_address, date_added, email_address from vipEmailAddress where email_address = $1
 `
 
 func (q *Queries) GetVipEmails(ctx context.Context, emailAddress string) ([]Vipemailaddress, error) {
@@ -49,7 +55,12 @@ func (q *Queries) GetVipEmails(ctx context.Context, emailAddress string) ([]Vipe
 	items := []Vipemailaddress{}
 	for rows.Next() {
 		var i Vipemailaddress
-		if err := rows.Scan(&i.VipEmailAddress, &i.DateAdded, &i.EmailAddress); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.VipEmailAddress,
+			&i.DateAdded,
+			&i.EmailAddress,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

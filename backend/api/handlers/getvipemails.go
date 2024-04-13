@@ -56,7 +56,7 @@ func GetVipEmails(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	api.ReturnResponse(w, 200, emails, false, messages.OK)
+	api.ReturnResponse(w, 200, emails, false, "")
 
 	return nil
 }

@@ -10,10 +10,11 @@ import (
 )
 
 const addEmail = `-- name: AddEmail :one
-insert into email (email_address, account_name, profile_picture, user_id, primaryAccount) values ($1, $2, $3, $4, $5) returning email_address, account_name, profile_picture, date_added, user_id, primaryaccount
+insert into email (id, email_address, account_name, profile_picture, user_id, primaryAccount) values ($1, $2, $3, $4, $5, $6) returning id, email_address, account_name, profile_picture, date_added, user_id, primaryaccount
 `
 
 type AddEmailParams struct {
+	ID             string `json:"id"`
 	EmailAddress   string `json:"email_address"`
 	AccountName    string `json:"account_name"`
 	ProfilePicture string `json:"profile_picture"`
@@ -23,6 +24,7 @@ type AddEmailParams struct {
 
 func (q *Queries) AddEmail(ctx context.Context, arg AddEmailParams) (Email, error) {
 	row := q.db.QueryRow(ctx, addEmail,
+		arg.ID,
 		arg.EmailAddress,
 		arg.AccountName,
 		arg.ProfilePicture,
@@ -31,6 +33,7 @@ func (q *Queries) AddEmail(ctx context.Context, arg AddEmailParams) (Email, erro
 	)
 	var i Email
 	err := row.Scan(
+		&i.ID,
 		&i.EmailAddress,
 		&i.AccountName,
 		&i.ProfilePicture,
@@ -42,7 +45,7 @@ func (q *Queries) AddEmail(ctx context.Context, arg AddEmailParams) (Email, erro
 }
 
 const getAllUserEmails = `-- name: GetAllUserEmails :many
-select email_address, account_name, profile_picture, date_added, user_id, primaryaccount from email where user_id = $1
+select id, email_address, account_name, profile_picture, date_added, user_id, primaryaccount from email where user_id = $1
 `
 
 func (q *Queries) GetAllUserEmails(ctx context.Context, userID string) ([]Email, error) {
@@ -55,6 +58,7 @@ func (q *Queries) GetAllUserEmails(ctx context.Context, userID string) ([]Email,
 	for rows.Next() {
 		var i Email
 		if err := rows.Scan(
+			&i.ID,
 			&i.EmailAddress,
 			&i.AccountName,
 			&i.ProfilePicture,
@@ -73,13 +77,14 @@ func (q *Queries) GetAllUserEmails(ctx context.Context, userID string) ([]Email,
 }
 
 const getEmailByEmailAddress = `-- name: GetEmailByEmailAddress :one
-select email_address, account_name, profile_picture, date_added, user_id, primaryaccount from email where email_address = $1 limit 1
+select id, email_address, account_name, profile_picture, date_added, user_id, primaryaccount from email where email_address = $1 limit 1
 `
 
 func (q *Queries) GetEmailByEmailAddress(ctx context.Context, emailAddress string) (Email, error) {
 	row := q.db.QueryRow(ctx, getEmailByEmailAddress, emailAddress)
 	var i Email
 	err := row.Scan(
+		&i.ID,
 		&i.EmailAddress,
 		&i.AccountName,
 		&i.ProfilePicture,

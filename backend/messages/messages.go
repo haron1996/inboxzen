@@ -6,5 +6,6 @@ const (
 	ErrInternalServer = "we encountered a problem"
 	ErrInvalidToken   = "token has expired"
 	ErrConflict       = "resource already exists"
+	ErrNotFound       = "not found"
 	OK                = "OK"
 )

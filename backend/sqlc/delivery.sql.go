@@ -9,17 +9,24 @@ import (
 	"context"
 )
 
-const deleteDeliveryTime = `-- name: DeleteDeliveryTime :exec
-delete from deliveryTime where email_address = $1
+const deleteDeliveryTime = `-- name: DeleteDeliveryTime :one
+delete from deliveryTime where id = $1 returning id, delivery_time, date_added, email_address
 `
 
-func (q *Queries) DeleteDeliveryTime(ctx context.Context, emailAddress string) error {
-	_, err := q.db.Exec(ctx, deleteDeliveryTime, emailAddress)
-	return err
+func (q *Queries) DeleteDeliveryTime(ctx context.Context, id string) (Deliverytime, error) {
+	row := q.db.QueryRow(ctx, deleteDeliveryTime, id)
+	var i Deliverytime
+	err := row.Scan(
+		&i.ID,
+		&i.DeliveryTime,
+		&i.DateAdded,
+		&i.EmailAddress,
+	)
+	return i, err
 }
 
 const getDeliveryTimes = `-- name: GetDeliveryTimes :many
-select delivery_time, date_added, email_address from deliveryTime where email_address = $1
+select id, delivery_time, date_added, email_address from deliveryTime where email_address = $1
 `
 
 func (q *Queries) GetDeliveryTimes(ctx context.Context, emailAddress string) ([]Deliverytime, error) {
@@ -31,7 +38,12 @@ func (q *Queries) GetDeliveryTimes(ctx context.Context, emailAddress string) ([]
 	items := []Deliverytime{}
 	for rows.Next() {
 		var i Deliverytime
-		if err := rows.Scan(&i.DeliveryTime, &i.DateAdded, &i.EmailAddress); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.DeliveryTime,
+			&i.DateAdded,
+			&i.EmailAddress,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -43,19 +55,25 @@ func (q *Queries) GetDeliveryTimes(ctx context.Context, emailAddress string) ([]
 }
 
 const setDeliveryTime = `-- name: SetDeliveryTime :one
-insert into deliveryTime (delivery_time, email_address)
-values ($1, $2)
-returning delivery_time, date_added, email_address
+insert into deliveryTime (id, delivery_time, email_address)
+values ($1, $2, $3)
+returning id, delivery_time, date_added, email_address
 `
 
 type SetDeliveryTimeParams struct {
+	ID           string `json:"id"`
 	DeliveryTime string `json:"delivery_time"`
 	EmailAddress string `json:"email_address"`
 }
 
 func (q *Queries) SetDeliveryTime(ctx context.Context, arg SetDeliveryTimeParams) (Deliverytime, error) {
-	row := q.db.QueryRow(ctx, setDeliveryTime, arg.DeliveryTime, arg.EmailAddress)
+	row := q.db.QueryRow(ctx, setDeliveryTime, arg.ID, arg.DeliveryTime, arg.EmailAddress)
 	var i Deliverytime
-	err := row.Scan(&i.DeliveryTime, &i.DateAdded, &i.EmailAddress)
+	err := row.Scan(
+		&i.ID,
+		&i.DeliveryTime,
+		&i.DateAdded,
+		&i.EmailAddress,
+	)
 	return i, err
 }

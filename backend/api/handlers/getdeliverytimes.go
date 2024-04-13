@@ -3,7 +3,6 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/charmbracelet/log"
 	"github.com/haron1996/inboxzen/api"
 	"github.com/haron1996/inboxzen/apperror"
 	"github.com/haron1996/inboxzen/messages"
@@ -47,7 +46,40 @@ func GetDeliveryTimes(w http.ResponseWriter, r *http.Request) error {
 
 	q := sqlc.New(p)
 
-	log.Info(email, q)
+	times, err := q.GetDeliveryTimes(ctx, email)
+	if err != nil {
+		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+		return &apperror.APPError{
+			Message: "Error getting delivery times",
+			Code:    500,
+			Err:     err,
+		}
+	}
+
+	var dts []deliveryTime
+
+	for _, tm := range times {
+		hour, minute, amPm, err := parseTime(tm)
+		if err != nil {
+			api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+			return &apperror.APPError{
+				Message: "Error parsing time",
+				Code:    500,
+				Err:     err,
+			}
+		}
+
+		res := deliveryTime{
+			ID:      tm.ID,
+			Hour:    hour,
+			Minutes: minute,
+			AmPm:    amPm,
+		}
+
+		dts = append(dts, res)
+	}
+
+	api.ReturnResponse(w, 200, dts, false, "")
 
 	return nil
 }

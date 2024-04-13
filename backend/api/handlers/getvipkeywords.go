@@ -56,7 +56,7 @@ func GetVipKeywords(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	api.ReturnResponse(w, 200, keywords, false, messages.OK)
+	api.ReturnResponse(w, 200, keywords, false, "")
 
 	return nil
 }

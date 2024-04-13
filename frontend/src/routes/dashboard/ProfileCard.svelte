@@ -57,10 +57,7 @@
 		cursor: pointer;
 		position: relative;
 		max-width: 40rem;
-		background-color: $white;
-		box-shadow:
-			rgba(255, 255, 255, 0.2) 0rem 0rem 0rem 0.1rem inset,
-			rgba(0, 0, 0, 0.9) 0rem 0rem 0rem 0.1rem;
+		border: 0.2rem solid #0d1b2a;
 
 		.left {
 			display: flex;
@@ -117,6 +114,10 @@
 					stroke: $light-black;
 				}
 			}
+		}
+
+		&:hover {
+			background-color: #edede9;
 		}
 	}
 </style>

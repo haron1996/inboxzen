@@ -49,10 +49,12 @@ func Router() *chi.Mux {
 		r.Get("/getdomains", logger.MakeHandler(handlers.GetDomains, l))
 		r.Get("/getemails", logger.MakeHandler(handlers.GetVipEmails, l))
 		r.Get("/getkeywords", logger.MakeHandler(handlers.GetVipKeywords, l))
+		r.Get("/getdeliverytimes", logger.MakeHandler(handlers.GetDeliveryTimes, l))
 		r.Post("/updatedomains", logger.MakeHandler(handlers.AddDomains, l))
 		r.Post("/updateemails", logger.MakeHandler(handlers.UpdateVipEmails, l))
 		r.Post("/updatekeywords", logger.MakeHandler(handlers.UpdateVipKeywords, l))
 		r.Post("/setdeliverytime", logger.MakeHandler(handlers.SetDeliveryTime, l))
+		r.Delete("/deletedeliverytime", logger.MakeHandler(handlers.DeleteDeliveryTime, l))
 	})
 
 	return r
