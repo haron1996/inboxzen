@@ -7,10 +7,26 @@ package sqlc
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const activate = `-- name: Activate :exec
+update email set running = true where email_address = $1 and user_id = $2
+`
+
+type ActivateParams struct {
+	EmailAddress string `json:"email_address"`
+	UserID       string `json:"user_id"`
+}
+
+func (q *Queries) Activate(ctx context.Context, arg ActivateParams) error {
+	_, err := q.db.Exec(ctx, activate, arg.EmailAddress, arg.UserID)
+	return err
+}
+
 const addEmail = `-- name: AddEmail :one
-insert into email (id, email_address, account_name, profile_picture, user_id, primaryAccount) values ($1, $2, $3, $4, $5, $6) returning id, email_address, account_name, profile_picture, date_added, user_id, primaryaccount
+insert into email (id, email_address, account_name, profile_picture, user_id, primaryAccount, oauth2_token) values ($1, $2, $3, $4, $5, $6, $7) returning id, email_address, account_name, profile_picture, date_added, user_id, primaryaccount, running, oauth2_token, hold_filter_id, block_filter_id
 `
 
 type AddEmailParams struct {
@@ -20,6 +36,7 @@ type AddEmailParams struct {
 	ProfilePicture string `json:"profile_picture"`
 	UserID         string `json:"user_id"`
 	Primaryaccount bool   `json:"primaryaccount"`
+	Oauth2Token    []byte `json:"oauth2_token"`
 }
 
 func (q *Queries) AddEmail(ctx context.Context, arg AddEmailParams) (Email, error) {
@@ -30,6 +47,7 @@ func (q *Queries) AddEmail(ctx context.Context, arg AddEmailParams) (Email, erro
 		arg.ProfilePicture,
 		arg.UserID,
 		arg.Primaryaccount,
+		arg.Oauth2Token,
 	)
 	var i Email
 	err := row.Scan(
@@ -40,12 +58,16 @@ func (q *Queries) AddEmail(ctx context.Context, arg AddEmailParams) (Email, erro
 		&i.DateAdded,
 		&i.UserID,
 		&i.Primaryaccount,
+		&i.Running,
+		&i.Oauth2Token,
+		&i.HoldFilterID,
+		&i.BlockFilterID,
 	)
 	return i, err
 }
 
 const getAllUserEmails = `-- name: GetAllUserEmails :many
-select id, email_address, account_name, profile_picture, date_added, user_id, primaryaccount from email where user_id = $1
+select id, email_address, account_name, profile_picture, date_added, user_id, primaryaccount, running, oauth2_token, hold_filter_id, block_filter_id from email where user_id = $1
 `
 
 func (q *Queries) GetAllUserEmails(ctx context.Context, userID string) ([]Email, error) {
@@ -65,6 +87,10 @@ func (q *Queries) GetAllUserEmails(ctx context.Context, userID string) ([]Email,
 			&i.DateAdded,
 			&i.UserID,
 			&i.Primaryaccount,
+			&i.Running,
+			&i.Oauth2Token,
+			&i.HoldFilterID,
+			&i.BlockFilterID,
 		); err != nil {
 			return nil, err
 		}
@@ -76,8 +102,36 @@ func (q *Queries) GetAllUserEmails(ctx context.Context, userID string) ([]Email,
 	return items, nil
 }
 
+const getEmail = `-- name: GetEmail :one
+select id, email_address, account_name, profile_picture, date_added, user_id, primaryaccount, running, oauth2_token, hold_filter_id, block_filter_id from email where email_address = $1 and user_id = $2 limit 1
+`
+
+type GetEmailParams struct {
+	EmailAddress string `json:"email_address"`
+	UserID       string `json:"user_id"`
+}
+
+func (q *Queries) GetEmail(ctx context.Context, arg GetEmailParams) (Email, error) {
+	row := q.db.QueryRow(ctx, getEmail, arg.EmailAddress, arg.UserID)
+	var i Email
+	err := row.Scan(
+		&i.ID,
+		&i.EmailAddress,
+		&i.AccountName,
+		&i.ProfilePicture,
+		&i.DateAdded,
+		&i.UserID,
+		&i.Primaryaccount,
+		&i.Running,
+		&i.Oauth2Token,
+		&i.HoldFilterID,
+		&i.BlockFilterID,
+	)
+	return i, err
+}
+
 const getEmailByEmailAddress = `-- name: GetEmailByEmailAddress :one
-select id, email_address, account_name, profile_picture, date_added, user_id, primaryaccount from email where email_address = $1 limit 1
+select id, email_address, account_name, profile_picture, date_added, user_id, primaryaccount, running, oauth2_token, hold_filter_id, block_filter_id from email where email_address = $1 limit 1
 `
 
 func (q *Queries) GetEmailByEmailAddress(ctx context.Context, emailAddress string) (Email, error) {
@@ -91,6 +145,25 @@ func (q *Queries) GetEmailByEmailAddress(ctx context.Context, emailAddress strin
 		&i.DateAdded,
 		&i.UserID,
 		&i.Primaryaccount,
+		&i.Running,
+		&i.Oauth2Token,
+		&i.HoldFilterID,
+		&i.BlockFilterID,
 	)
 	return i, err
+}
+
+const updateHoldFilterID = `-- name: UpdateHoldFilterID :exec
+update email set hold_filter_id = $1 where email_address = $2 and user_id = $3
+`
+
+type UpdateHoldFilterIDParams struct {
+	HoldFilterID pgtype.Text `json:"hold_filter_id"`
+	EmailAddress string      `json:"email_address"`
+	UserID       string      `json:"user_id"`
+}
+
+func (q *Queries) UpdateHoldFilterID(ctx context.Context, arg UpdateHoldFilterIDParams) error {
+	_, err := q.db.Exec(ctx, updateHoldFilterID, arg.HoldFilterID, arg.EmailAddress, arg.UserID)
+	return err
 }

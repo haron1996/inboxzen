@@ -19,7 +19,7 @@
 </script>
 
 <svelte:head>
-	<title>Profile Settings | Zenn</title>
+	<title>Profile Settings | Gmail Inbox Zero</title>
 </svelte:head>
 
 <section>
@@ -27,7 +27,44 @@
 		<BackButton width={80} onClick={handleBackButton} />
 	</div>
 	<div class="bottom">
-		<!-- Beginning of primary account -->
+		<!--Active accout-->
+		<div class="card">
+			<div class="title">
+				<span>ACTIVE ACCOUNT</span>
+			</div>
+			{#if $loading}
+				<CardSkeleton height={10} width={80} padding={0} borderRadius={0} />
+			{:else}
+				<div class="content">
+					{#if $session}
+						{#if $session.email}
+							<ProfileCard
+								name={$session.email.account_name}
+								email={$session.email.email_address}
+								picture={$session.email.profile_picture}
+								width="30rem"
+								SVGDisplay="none"
+								onClick={() => {}}
+							/>
+							<Button
+								height={4.5}
+								width={10}
+								borderRadius={0.3}
+								color="#d90429"
+								padding={0.5}
+								text="remove"
+								borderColor="#d90429"
+								backgroundColor="#ef233c"
+								onClick={() => {}}
+							/>
+						{/if}
+					{/if}
+				</div>
+			{/if}
+		</div>
+		<!-- End of active account account -->
+
+		<!-- Primary account -->
 		<div class="card">
 			<div class="title">
 				<span>PRIMARY ACCOUNT</span>
@@ -49,11 +86,12 @@
 							/>
 							<Button
 								height={4.5}
-								width={15}
+								width={10}
 								borderRadius={0.3}
 								color="#0d1b2a"
 								padding={0.5}
-								text="delete account"
+								text="remove"
+								backgroundColor="#d90429"
 								onClick={() => {}}
 							/>
 						{:else if $session.emails}
@@ -69,11 +107,12 @@
 									/>
 									<Button
 										height={4.5}
-										width={15}
+										width={10}
 										borderRadius={0.3}
 										color="#0d1b2a"
 										padding={0.5}
-										text="delete account"
+										text="remove"
+										backgroundColor="#d90429"
 										onClick={() => {}}
 									/>
 								{/if}
@@ -86,6 +125,7 @@
 
 		<!-- End of primary account -->
 
+		<!--Secondary accounts-->
 		<div class="secondary-accounts">
 			<div class="title">
 				<span>SECONDARY ACCOUNTS</span>
@@ -107,11 +147,12 @@
 								/>
 								<Button
 									height={4.5}
-									width={15}
+									width={10}
 									borderRadius={0.3}
 									color="#0d1b2a"
 									padding={0.5}
-									text="delete account"
+									text="remove"
+									backgroundColor="#d90429"
 									onClick={() => {}}
 								/>
 							</div>
@@ -131,11 +172,12 @@
 									/>
 									<Button
 										height={4.5}
-										width={15}
+										width={10}
 										borderRadius={0.3}
 										color="#0d1b2a"
 										padding={0.5}
-										text="delete account"
+										text="remove"
+										backgroundColor="#d90429"
 										onClick={() => {}}
 									/>
 								</div>
@@ -151,40 +193,6 @@
 		</div>
 
 		<!-- End of secondary accounts -->
-
-		<div class="card">
-			<div class="title">
-				<span>ACTIVE ACCOUNT</span>
-			</div>
-			{#if $loading}
-				<CardSkeleton height={10} width={80} padding={0} borderRadius={0} />
-			{:else}
-				<div class="content">
-					{#if $session}
-						{#if $session.email}
-							<ProfileCard
-								name={$session.email.account_name}
-								email={$session.email.email_address}
-								picture={$session.email.profile_picture}
-								width="30rem"
-								SVGDisplay="none"
-								onClick={() => {}}
-							/>
-							<Button
-								height={4.5}
-								width={15}
-								borderRadius={0.3}
-								color="#0d1b2a"
-								padding={0.5}
-								text="delete account"
-								onClick={() => {}}
-							/>
-						{/if}
-					{/if}
-				</div>
-			{/if}
-		</div>
-		<!-- End of active account account -->
 	</div>
 </section>
 
@@ -232,7 +240,8 @@
 						font-family: $spline;
 						font-size: 1.1rem;
 						text-transform: uppercase;
-						font-weight: 500;
+						font-weight: 600;
+						color: #0d1b2a;
 						padding: 1rem;
 					}
 				}
@@ -266,7 +275,8 @@
 						font-family: $spline;
 						font-size: 1.1rem;
 						text-transform: uppercase;
-						font-weight: 500;
+						font-weight: 600;
+						color: #0d1b2a;
 						padding: 1rem;
 					}
 				}

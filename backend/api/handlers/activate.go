@@ -1,10 +1,8 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 
-	"github.com/charmbracelet/log"
 	"github.com/haron1996/inboxzen/api"
 	"github.com/haron1996/inboxzen/apperror"
 	"github.com/haron1996/inboxzen/messages"
@@ -16,24 +14,15 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type keywords struct {
-	Keywords []string `json:"keywords"`
-}
-
-func UpdateVipKeywords(w http.ResponseWriter, r *http.Request) error {
+func Activate(w http.ResponseWriter, r *http.Request) error {
 	ctx := r.Context()
 
-	var req *keywords
+	const pLoad mw.ContextKey = "payload"
 
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
-		return &apperror.APPError{
-			Message: "Error returning new decoder",
-			Code:    500,
-			Err:     err,
-		}
-	}
+	payload := ctx.Value(pLoad).(*paseto.PayLoad)
+
+	email := payload.Email
+	userID := payload.UserID
 
 	c, err := viper.LoadConfig(".")
 	if err != nil {
@@ -59,53 +48,11 @@ func UpdateVipKeywords(w http.ResponseWriter, r *http.Request) error {
 
 	q := sqlc.New(p)
 
-	const pLoad mw.ContextKey = "payload"
-
-	payload := ctx.Value(pLoad).(*paseto.PayLoad)
-
-	email := payload.Email
-	userID := payload.UserID
-
-	err = q.DeleteKeywords(ctx, email)
+	domains, err := q.GetDomains(ctx, email)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
-			Message: "Error deleting vip keywords",
-			Code:    500,
-			Err:     err,
-		}
-	}
-
-	for _, kw := range req.Keywords {
-		params := sqlc.AddKeywordParams{
-			ID:           utils.RandomString(),
-			Keyword:      kw,
-			EmailAddress: email,
-		}
-
-		_, err := q.AddKeyword(ctx, params)
-		if err != nil {
-			switch {
-			case err.Error() == `ERROR: duplicate key value violates unique constraint "vipkeyword_keyword_email_address_key" (SQLSTATE 23505)`:
-				log.Warnf("%s skipped", params.Keyword)
-				continue
-			default:
-				api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
-				return &apperror.APPError{
-					Message: "Error adding vip email",
-					Code:    500,
-					Err:     err,
-				}
-			}
-		}
-
-	}
-
-	keywords, err := q.GetKeywords(ctx, email)
-	if err != nil {
-		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
-		return &apperror.APPError{
-			Message: "Error getting vip keywords",
+			Message: "Error getting vip domains",
 			Code:    500,
 			Err:     err,
 		}
@@ -115,17 +62,17 @@ func UpdateVipKeywords(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
-			Message: "Error getting vip emails",
+			Message: "Error getting user emails",
 			Code:    500,
 			Err:     err,
 		}
 	}
 
-	domains, err := q.GetDomains(ctx, email)
+	keywords, err := q.GetKeywords(ctx, email)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
-			Message: "Error getting domains",
+			Message: "Error getting vip keywords",
 			Code:    500,
 			Err:     err,
 		}
@@ -153,7 +100,22 @@ func UpdateVipKeywords(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	api.ReturnResponse(w, 200, keywords, false, "")
+	params := sqlc.ActivateParams{
+		EmailAddress: email,
+		UserID:       userID,
+	}
+
+	err = q.Activate(ctx, params)
+	if err != nil {
+		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+		return &apperror.APPError{
+			Message: "Error activating email",
+			Code:    500,
+			Err:     err,
+		}
+	}
+
+	api.ReturnResponse(w, 200, nil, true, messages.OK)
 
 	return nil
 }

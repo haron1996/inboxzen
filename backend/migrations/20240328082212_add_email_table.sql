@@ -9,6 +9,11 @@ create table email(
     date_added timestamptz not null default current_timestamp,
     user_id text not null,
     primaryAccount boolean not null,
+    running boolean not null default false,
+    oauth2_token bytea not null,
+    hold_filter_id text,
+    block_filter_id text,
+    unique(user_id, email_address),
     foreign key (user_id) references users(id) on delete cascade
 );
 -- +goose StatementBegin

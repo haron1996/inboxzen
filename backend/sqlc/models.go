@@ -23,6 +23,10 @@ type Email struct {
 	DateAdded      pgtype.Timestamptz `json:"date_added"`
 	UserID         string             `json:"user_id"`
 	Primaryaccount bool               `json:"primaryaccount"`
+	Running        bool               `json:"running"`
+	Oauth2Token    []byte             `json:"oauth2_token"`
+	HoldFilterID   pgtype.Text        `json:"hold_filter_id"`
+	BlockFilterID  pgtype.Text        `json:"block_filter_id"`
 }
 
 type User struct {

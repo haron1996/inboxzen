@@ -7,6 +7,10 @@
 	function handleKeywordInputBlur() {
 		if ($keyword.keyword === undefined) return;
 
+		$keyword.keyword = $keyword.keyword.trim();
+
+		$keyword.keyword = $keyword.keyword.toLowerCase();
+
 		let found = false;
 
 		$keywords.forEach((kw) => {
@@ -113,28 +117,29 @@
 		display: flex;
 		flex-direction: column;
 		border-radius: 0.3rem;
-		padding: 2rem;
-		gap: 2rem;
 		border: 0.1rem solid #0d1b2a;
 
 		.top {
 			display: flex;
 			flex-direction: column;
 			justify-content: center;
-			gap: 0.5rem;
+			gap: 1rem;
+			border-bottom: 0.1rem solid #e0e1dd;
+			padding: 2rem;
 
 			p {
 				font-family: $spline;
 				font-size: 1.1rem;
 				text-transform: uppercase;
-				font-weight: 500;
+				font-weight: 600;
+				color: #0d1b2a;
 			}
 
 			span {
-				font-size: 1.3rem;
 				font-family: $spline;
-				font-weight: 500;
-				color: $black-1;
+				font-weight: 600;
+				text-transform: uppercase;
+				color: #757575;
 			}
 		}
 
@@ -145,9 +150,9 @@
 			align-content: start;
 			align-items: center;
 			gap: 1rem;
+			padding: 2rem;
 
 			.keyword {
-				background-color: #f6f5f5;
 				min-height: max-content;
 				display: flex;
 				align-items: center;
@@ -155,9 +160,8 @@
 				width: max-content;
 				border-radius: 0.5rem;
 				gap: 0.3rem;
-				box-shadow:
-					rgba(0, 0, 0, 0.05) 0rem 0rem 0rem 0.1rem,
-					rgb(209, 213, 219) 0rem 0rem 0rem 0.1rem inset;
+				background-color: #ffd166;
+				border: 0.2rem solid #fb8500;
 
 				span {
 					font-size: 1.3rem;
@@ -178,6 +182,7 @@
 				outline: none;
 				font-family: $spline;
 				padding: 0.5rem;
+				text-transform: lowercase;
 			}
 		}
 
@@ -185,7 +190,7 @@
 			display: flex;
 			align-items: center;
 			justify-content: flex-end;
-			padding: 1rem;
+			padding: 2rem;
 		}
 	}
 </style>

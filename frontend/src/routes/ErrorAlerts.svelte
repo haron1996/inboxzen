@@ -45,7 +45,7 @@
 				font-family: $spline;
 				font-size: 1.1rem;
 				font-weight: 600;
-				color: rgb(155 28 28/1);
+				color: #d90429;
 				text-transform: uppercase;
 			}
 		}

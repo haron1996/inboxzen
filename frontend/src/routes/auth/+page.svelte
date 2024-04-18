@@ -2,9 +2,20 @@
 	import { onMount } from 'svelte';
 	import Spinner from '../Spinner.svelte';
 	import { page } from '$app/stores';
-	import { finishAuth } from '../../utils';
+	import { finishAuth, updateErrorMessages } from '../../utils';
+	import { goto } from '$app/navigation';
+
+	let error: string | null = '';
 
 	onMount(() => {
+		error = $page.url.searchParams.get('error');
+
+		if (error) {
+			updateErrorMessages(error);
+			goto('/preauth');
+			return;
+		}
+
 		const code = $page.url.searchParams.get('code');
 
 		if (code) {

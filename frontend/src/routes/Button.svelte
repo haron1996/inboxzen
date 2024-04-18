@@ -1,5 +1,6 @@
 <script lang="ts">
 	export let borderColor = '#0d1b2a';
+	export let backgroundColor = '#0d1b2a';
 	export let width = 0;
 	export let height = 0;
 	export let padding = 0;
@@ -8,11 +9,38 @@
 	export let text = '';
 	export let fontWeight = 500;
 	export let onClick: (e: MouseEvent) => void;
+
+	function handleMouseEnter(e: MouseEvent) {
+		const t = e.currentTarget as HTMLButtonElement;
+
+		t.style.backgroundColor = backgroundColor;
+
+		const span = t.lastElementChild as HTMLSpanElement | null;
+
+		if (span === null) return;
+
+		span.style.color = '#fff';
+	}
+
+	function handleMouserLeave(e: MouseEvent) {
+		const t = e.currentTarget as HTMLButtonElement;
+
+		t.style.backgroundColor = '#fff';
+
+		const span = t.lastElementChild as HTMLSpanElement | null;
+
+		if (span === null) return;
+
+		span.style.color = color;
+	}
 </script>
 
 <button
 	style="border: .2rem solid {borderColor};width: {width}rem; height: {height}rem; padding: {padding}rem; border-radius: {borderRadius}rem; color: {color};"
 	on:click|preventDefault={onClick}
+	on:mouseenter={handleMouseEnter}
+	on:mouseleave={handleMouserLeave}
+	on:focus
 >
 	<span style="font-weight: {fontWeight};">{text}</span>
 </button>
@@ -26,7 +54,7 @@
 		justify-content: center;
 		gap: 1rem;
 		min-width: max-content;
-		transition: box-shadow 0.3s ease;
+		transition: all 0.3s linear;
 		background-color: #fff;
 
 		span {

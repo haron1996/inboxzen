@@ -64,6 +64,7 @@ func UpdateVipEmails(w http.ResponseWriter, r *http.Request) error {
 	payload := ctx.Value(pLoad).(*paseto.PayLoad)
 
 	email := payload.Email
+	userID := payload.UserID
 
 	err = q.DeleteVipEmails(ctx, email)
 	if err != nil {
@@ -105,6 +106,48 @@ func UpdateVipEmails(w http.ResponseWriter, r *http.Request) error {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
 			Message: "Error getting vip emails",
+			Code:    500,
+			Err:     err,
+		}
+	}
+
+	domains, err := q.GetDomains(ctx, email)
+	if err != nil {
+		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+		return &apperror.APPError{
+			Message: "Error getting domains",
+			Code:    500,
+			Err:     err,
+		}
+	}
+
+	keywords, err := q.GetKeywords(ctx, email)
+	if err != nil {
+		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+		return &apperror.APPError{
+			Message: "Error getting vip keywords",
+			Code:    500,
+			Err:     err,
+		}
+	}
+
+	filterParams := utils.NewFilterParams(q, ctx, userID, email, domains, emails, keywords)
+
+	err = filterParams.CreateCustomLabels()
+	if err != nil {
+		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+		return &apperror.APPError{
+			Message: "Error creating label",
+			Code:    500,
+			Err:     err,
+		}
+	}
+
+	err = filterParams.CreateHoldFilter()
+	if err != nil {
+		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+		return &apperror.APPError{
+			Message: "Error creating hold filter",
 			Code:    500,
 			Err:     err,
 		}

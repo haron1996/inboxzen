@@ -3,27 +3,17 @@ package handlers
 import (
 	"net/http"
 	"net/url"
-	"os"
 
 	"github.com/haron1996/inboxzen/api"
 	"github.com/haron1996/inboxzen/apperror"
 	"github.com/haron1996/inboxzen/messages"
+	"github.com/haron1996/inboxzen/utils"
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 )
 
 func GenerateGoogleAuthURL(w http.ResponseWriter, r *http.Request) error {
-	b, err := os.ReadFile("credentials.json")
-	if err != nil {
-		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
-		return &apperror.APPError{
-			Message: "Error reading file",
-			Code:    500,
-			Err:     err,
-		}
-	}
 
-	config, err := google.ConfigFromJSON(b, "https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email")
+	config, err := utils.ConstructGoogleConfig()
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{

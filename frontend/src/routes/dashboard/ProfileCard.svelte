@@ -58,6 +58,7 @@
 		position: relative;
 		max-width: 40rem;
 		border: 0.2rem solid #0d1b2a;
+		transition: all 0.3s linear;
 
 		.left {
 			display: flex;
@@ -89,7 +90,7 @@
 				overflow: hidden;
 				text-overflow: ellipsis;
 				text-transform: uppercase;
-				max-width: 30rem;
+				max-width: 35rem;
 			}
 
 			span.email {
@@ -117,7 +118,8 @@
 		}
 
 		&:hover {
-			background-color: #edede9;
+			border-color: #fb8500;
+			background-color: #ffd166;
 		}
 	}
 </style>

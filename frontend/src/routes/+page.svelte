@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-	<title>ZENN.EMAIL: BECOME A GMAIL PRO</title>
+	<title>Gmail Inbox Zero: Quickly Take Your Gmail Inbox to Zero</title>
 	<meta name="description" content="Reclaim control of your inbox with InboxZen" />
 </svelte:head>
 
@@ -15,14 +15,14 @@
 	<div class="offer">
 		<p>Take Control of Your Gmail Inbox</p>
 		<span>
-			Goodbye inbox clutter. Say hello to inbox zero. Zenn helps you take control of who makes it to
-			your inbox and at what time. This way, you reclaim the time wasted on your inbox, increase
-			your productivity, and make Gmail fun again.
+			Goodbye inbox clutter. Say hello to inbox zero. Gmail inbox zero helps you take control of who
+			makes it to your inbox and at what time. This way, you reclaim the time wasted on your inbox,
+			increase your productivity, and make Gmail fun again.
 		</span>
 		<Button
 			height={4.5}
 			width={30}
-			borderRadius={0.6}
+			borderRadius={0.3}
 			color="#0d1b2a"
 			padding={0.5}
 			text="CONTINUE WITH GOOGLE"

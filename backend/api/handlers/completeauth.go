@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -21,7 +20,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 )
 
 type authCode struct {
@@ -42,6 +40,8 @@ var (
 )
 
 func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
+	ctx := r.Context()
+
 	var req *authCode
 
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -54,17 +54,7 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	b, err := os.ReadFile("credentials.json")
-	if err != nil {
-		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
-		return &apperror.APPError{
-			Message: "Error reading file",
-			Code:    500,
-			Err:     err,
-		}
-	}
-
-	config, err := google.ConfigFromJSON(b, "https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email")
+	config, err := utils.ConstructGoogleConfig()
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
@@ -74,7 +64,7 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	tok, err := config.Exchange(context.TODO(), req.Code)
+	tok, err := config.Exchange(ctx, req.Code)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
@@ -84,7 +74,15 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	ctx := r.Context()
+	b, err := json.Marshal(tok)
+	if err != nil {
+		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+		return &apperror.APPError{
+			Message: "Error marshalling token",
+			Code:    500,
+			Err:     err,
+		}
+	}
 
 	client := oauth2.NewClient(ctx, oauth2.StaticTokenSource(tok))
 
@@ -168,13 +166,25 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 						ProfilePicture: ui.Picture,
 						UserID:         userID,
 						Primaryaccount: true,
+						Oauth2Token:    b,
 					}
 
-					_, err = q.AddEmail(ctx, accountParams)
+					email, err := q.AddEmail(ctx, accountParams)
 					if err != nil {
 						api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 						return &apperror.APPError{
 							Message: "Error adding account",
+							Code:    500,
+							Err:     err,
+						}
+					}
+
+					// insert default keywords
+					err = addDefaultKeywords(q, email.EmailAddress)
+					if err != nil {
+						api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+						return &apperror.APPError{
+							Message: "Error adding default keyword",
 							Code:    500,
 							Err:     err,
 						}
@@ -352,6 +362,7 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 		ProfilePicture: ui.Picture,
 		UserID:         userID,
 		Primaryaccount: false,
+		Oauth2Token:    b,
 	}
 
 	email, err := q.AddEmail(ctx, addEmailParams)
@@ -359,6 +370,17 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
 			Message: "Error adding email",
+			Code:    500,
+			Err:     err,
+		}
+	}
+
+	// insert default keywords
+	err = addDefaultKeywords(q, email.EmailAddress)
+	if err != nil {
+		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+		return &apperror.APPError{
+			Message: "Error adding default keyword",
 			Code:    500,
 			Err:     err,
 		}
@@ -405,6 +427,36 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 	http.SetCookie(w, &session)
 
 	api.ReturnResponse(w, 200, nil, true, messages.OK)
+
+	return nil
+}
+
+func addDefaultKeywords(q *sqlc.Queries, email string) error {
+	defaultKeywords := []string{
+		"otp",
+		"code",
+		"confirm",
+		"confirmation",
+		"verify",
+		"verification",
+		"reset",
+		"password",
+		"2fa",
+		"welcome",
+	}
+
+	for _, dk := range defaultKeywords {
+		params := sqlc.AddKeywordParams{
+			ID:           utils.RandomString(),
+			Keyword:      dk,
+			EmailAddress: email,
+		}
+
+		_, err := q.AddKeyword(context.Background(), params)
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

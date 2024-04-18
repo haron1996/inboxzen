@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-	<title>Pre-auth | Inbox Check</title>
+	<title>Pre-auth | Gmail Inbox Zero</title>
 </svelte:head>
 
 <section>

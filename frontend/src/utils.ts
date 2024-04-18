@@ -6,6 +6,7 @@ import {
 	errorMessages,
 	keywords,
 	loading,
+	running,
 	session,
 	successMessages,
 	time,
@@ -52,24 +53,32 @@ export function showMenu(e: MouseEvent) {
 
 	if (menu === null) return;
 
-	menu.style.left = `${domRect.x}px`;
-	menu.style.left = `${domRect.x}px`;
-	menu.style.top = `${domRect.bottom + 5}px`;
-	menu.style.width = `${domRect.width}px`;
+	// menu.style.left = `${domRect.x}px`;
+	// menu.style.left = `${domRect.x}px`;
+	// menu.style.top = `${domRect.bottom + 5}px`;
+	// menu.style.width = `${domRect.width}px`;
 
-	const svg = document.getElementById('profile-card-svg') as SVGAElement | null;
+	// Set menu width to be wider
+	const menuWidth = domRect.width * 1.5; // Adjust the multiplier as needed
+	menu.style.width = `${menuWidth}px`;
+
+	// Calculate left position for the menu to span equally on both sides
+	const leftPosition = domRect.x - (menuWidth - domRect.width) / 2;
+	menu.style.left = `${leftPosition}px`;
+
+	menu.style.top = `${domRect.bottom + 5}px`;
+
+	const svg = target.lastElementChild?.firstElementChild as SVGAElement | null;
 
 	if (svg === null) return;
 
 	switch (menu.style.display) {
-		case 'flex':
+		case 'block':
 			menu.style.display = 'none';
-
 			svg.style.transform = 'rotate(0)';
 			break;
 		default:
-			menu.style.display = 'flex';
-
+			menu.style.display = 'block';
 			svg.style.transform = 'rotate(0.5turn)';
 			break;
 	}
@@ -80,11 +89,19 @@ export function hideMenu() {
 
 	if (menu === null) return;
 
-	if (!(menu.style.display === 'flex')) return;
+	if (!(menu.style.display === 'block')) return;
 
 	menu.style.display = 'none';
 
-	const svg = document.getElementById('profile-card-svg') as SVGAElement | null;
+	const profileCards = document.querySelectorAll(
+		'div.profile'
+	) as NodeListOf<HTMLDivElement> | null;
+
+	if (profileCards === null) return;
+
+	const lastProfileCard = profileCards[profileCards.length - 1];
+
+	const svg = lastProfileCard.lastElementChild?.firstElementChild as SVGAElement | null;
 
 	if (svg === null) return;
 
@@ -148,14 +165,13 @@ export const checkUserLoginStatus = async () => {
 			return response.json();
 		})
 		.then((data) => {
-			goto('/dashboard', { replaceState: true, invalidateAll: true });
+			location.href = '/dashboard';
 		})
 		.catch((error) => {
 			message = error.message;
 
 			switch (message) {
 				case 'token has expired':
-					updateErrorMessages(message);
 					goto('/preauth', { replaceState: true, invalidateAll: true });
 					return;
 				default:
@@ -234,7 +250,7 @@ export const finishAuth = async (code: string) => {
 			return response.json();
 		})
 		.then((data) => {
-			goto('/dashboard', { replaceState: true, invalidateAll: true });
+			location.href = '/dashboard';
 		})
 		.catch((error) => {
 			message = error.message;
@@ -658,15 +674,141 @@ export const deleteInboxDeliveryTime = async (params: {}, dts: Time[]) => {
 		});
 };
 
+// activate
+export const activate = async () => {
+	getURL();
+
+	url = `${url}/private/activate`;
+
+	await fetch(url, {
+		method: 'PATCH',
+		mode: 'cors',
+		cache: 'no-cache',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		redirect: 'follow',
+		referrerPolicy: 'no-referrer'
+	})
+		.then(async (response) => {
+			if (!response.ok) {
+				result = await response.json();
+				message = result.message;
+				throw new Error(message);
+			}
+
+			return response.json();
+		})
+		.then((data) => {
+			running.set(true);
+			updateSuccessMessages('service started successfully');
+		})
+		.catch((error) => {
+			message = error.message;
+			updateErrorMessages(message);
+		})
+		.finally(() => {
+			loading.set(false);
+		});
+};
+
+// get status
+export const getServiceStatus = async () => {
+	getURL();
+
+	url = `${url}/private/checkstatus`;
+
+	await fetch(url, {
+		method: 'GET',
+		mode: 'cors',
+		cache: 'no-cache',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		redirect: 'follow',
+		referrerPolicy: 'no-referrer'
+	})
+		.then(async (response) => {
+			if (!response.ok) {
+				result = await response.json();
+				message = result.message;
+				throw new Error(message);
+			}
+
+			return response.json();
+		})
+		.then((data) => {
+			if (data.running) {
+				running.set(true);
+			}
+		})
+		.catch((error) => {
+			message = error.message;
+			updateErrorMessages(message);
+		})
+		.finally(() => {
+			loading.set(false);
+		});
+};
+
+// switch account
+export const switchAccount = async (e: MouseEvent) => {
+	getURL();
+
+	const target = e.currentTarget as HTMLDivElement;
+
+	const email = target.children[1].children[1].textContent;
+
+	if (email === null) return;
+
+	url = `${url}/private/switchaccount/${email}`;
+
+	await fetch(url, {
+		method: 'GET',
+		mode: 'cors',
+		cache: 'no-cache',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		redirect: 'follow',
+		referrerPolicy: 'no-referrer'
+	})
+		.then(async (response) => {
+			if (!response.ok) {
+				result = await response.json();
+				message = result.message;
+				throw new Error(message);
+			}
+
+			return response.json();
+		})
+		.then((data: Session) => {
+			session.set(data);
+		})
+		.catch((error) => {
+			message = error.message;
+			updateErrorMessages(message);
+		})
+		.finally(() => {
+			hideMenu();
+			loading.set(false);
+			location.reload();
+		});
+};
+
 // get user email settings (domains, emails, keywords, delivery times)
 export const getUserEmailSettings = async () => {
 	try {
 		await Promise.all([
 			getUserAccount(),
+			getServiceStatus(),
+			getInboxDeliveryTimes(),
 			getVipDomains(),
 			getVipEmailAddresses(),
-			getVipKeywords(),
-			getInboxDeliveryTimes()
+			getVipKeywords()
 		]);
 	} catch (error) {
 		console.log('An error occured:', error);

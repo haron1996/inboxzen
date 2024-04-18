@@ -137,7 +137,7 @@ func SwitchAccount(w http.ResponseWriter, r *http.Request) error {
 
 	http.SetCookie(w, &session)
 
-	api.ReturnResponse(w, 200, userAccount, false, messages.OK)
+	api.ReturnResponse(w, 200, userAccount, false, "")
 
 	return nil
 }

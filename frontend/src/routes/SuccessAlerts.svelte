@@ -35,14 +35,14 @@
 			width: 30rem;
 			height: 5rem;
 			padding: 1rem;
-			border: 0.2rem solid #3f7d20;
+			border: 0.2rem solid #20bf55;
 			border-radius: 0.3rem;
 
 			span {
 				font-family: $spline;
 				font-size: 1.1rem;
 				font-weight: 600;
-				color: #3f7d20;
+				color: #20bf55;
 				text-transform: uppercase;
 			}
 		}

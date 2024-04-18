@@ -5,6 +5,7 @@
 	import CardSkeleton from './CardSkeleton.svelte';
 	import Menu from './Menu.svelte';
 	import ProfileCard from './ProfileCard.svelte';
+	import Status from './Status.svelte';
 	import VipDomains from './VipDomains.svelte';
 	import VipEmails from './VipEmails.svelte';
 	import VipKeywords from './VipKeywords.svelte';
@@ -18,7 +19,7 @@
 </script>
 
 <svelte:head>
-	<title>Dashboard | Zenn</title>
+	<title>Dashboard | Gmail Inbox Zero</title>
 </svelte:head>
 
 <svelte:window on:resize={hideMenu} />
@@ -39,10 +40,11 @@
 		{/if}
 	</div>
 	<div class="bottom">
+		<Status />
+		<DeliveryTime />
 		<VipDomains />
 		<VipEmails />
 		<VipKeywords />
-		<DeliveryTime />
 	</div>
 </section>
 
@@ -54,6 +56,7 @@
 		flex-direction: column;
 		gap: 4rem;
 		padding: 2rem;
+		background-color: #fbfbff;
 
 		.top {
 			width: 100%;
@@ -71,7 +74,6 @@
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			justify-content: center;
 			gap: 5rem;
 		}
 	}

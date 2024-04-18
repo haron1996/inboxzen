@@ -35,3 +35,6 @@ export let keywords = writable<Keyword[]>([]);
 export let time = writable<Time>({});
 export let times = writable<Time[]>([]);
 // end of delivery times
+
+// status
+export const running = writable<boolean>(false);
