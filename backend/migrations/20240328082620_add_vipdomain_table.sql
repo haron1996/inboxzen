@@ -2,7 +2,7 @@
 drop table if exists vipDomain cascade;
 
 create table vipDomain (
-    id text not null primary key,
+    id text primary key,
     domain_name text not null,
     date_added timestamptz not null default current_timestamp,
     email_id text not null,

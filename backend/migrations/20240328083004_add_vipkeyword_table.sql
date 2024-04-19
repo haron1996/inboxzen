@@ -2,7 +2,7 @@
 drop table if exists vipKeyword cascade;
 
 create table vipKeyword (
-    id text not null primary key,
+    id text primary key,
     keyword text not null,
     date_added timestamptz not null default current_timestamp,
     email_id text not null,

@@ -2,7 +2,7 @@
 drop table if exists deliveryTime cascade;
 
 create table deliveryTime (
-    id text not null primary key,
+    id text primary key,
     delivery_time text not null,
     date_added timestamptz not null default current_timestamp,
     email_id text not null,

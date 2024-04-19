@@ -2,7 +2,7 @@
 drop table if exists users cascade;
 
 create table users (
-    id text not null primary key,
+    id text primary key,
     register_date timestamptz not null default current_timestamp,
     last_login timestamptz
 );
