@@ -51,6 +51,7 @@ func Router() *chi.Mux {
 		r.Get("/getkeywords", logger.MakeHandler(handlers.GetVipKeywords, l))
 		r.Get("/getdeliverytimes", logger.MakeHandler(handlers.GetDeliveryTimes, l))
 		r.Get("/checkstatus", logger.MakeHandler(handlers.CheckRunningStatus, l))
+		r.Get("/getfirsttimesenders", logger.MakeHandler(handlers.GetFirstTimeSenders, l))
 		r.Post("/updatedomains", logger.MakeHandler(handlers.AddDomains, l))
 		r.Post("/updateemails", logger.MakeHandler(handlers.UpdateVipEmails, l))
 		r.Post("/updatekeywords", logger.MakeHandler(handlers.UpdateVipKeywords, l))

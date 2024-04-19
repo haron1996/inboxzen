@@ -57,8 +57,8 @@
 		cursor: pointer;
 		position: relative;
 		max-width: 40rem;
-		border: 0.2rem solid #0d1b2a;
-		transition: all 0.3s linear;
+		background-color: #00a8e8;
+		border: 0.2rem solid #0077b6;
 
 		.left {
 			display: flex;
@@ -118,8 +118,7 @@
 		}
 
 		&:hover {
-			border-color: #fb8500;
-			background-color: #ffd166;
+			background-color: #1e91d6;
 		}
 	}
 </style>

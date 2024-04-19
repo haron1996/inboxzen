@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { loading, time, times } from '../../store';
-	import type { Time } from '../../types';
 	import { deleteInboxDeliveryTime, setInboxDeliveryTime, updateErrorMessages } from '../../utils';
 	import Button from '../Button.svelte';
 	import CardSkeleton from './CardSkeleton.svelte';
@@ -142,13 +141,14 @@
 
 <style lang="scss">
 	.delivery-times {
-		width: 80rem;
+		width: 70%;
+		margin: 1rem auto;
 		min-height: max-content;
 		background-color: $white;
 		display: flex;
 		flex-direction: column;
 		border-radius: 0.3rem;
-		border: 0.1rem solid #0d1b2a;
+		border: 0.1rem solid #e5e5e5;
 
 		.top {
 			display: flex;
@@ -188,7 +188,7 @@
 				input {
 					outline: none;
 					border: none;
-					border-bottom: 0.1rem solid #0d1b2a;
+					border-bottom: 0.1rem solid #e5e5e5;
 					padding: 0.5rem;
 					text-transform: lowercase;
 					font-family: $spline;
@@ -215,8 +215,8 @@
 					width: max-content;
 					border-radius: 0.5rem;
 					gap: 0.3rem;
-					background-color: #ffd166;
-					border: 0.2rem solid #fb8500;
+					background-color: #fbfbff;
+					border: 0.1rem solid #e5e5e5;
 
 					span {
 						font-size: 1.3rem;

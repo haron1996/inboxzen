@@ -34,7 +34,7 @@ func NewFilterParams(q *sqlc.Queries, ctx context.Context, userID, email string,
 	}
 }
 
-func gmailService(ctx context.Context, q *sqlc.Queries, userID, email string) (*gmail.Service, error) {
+func ConstructGmailService(ctx context.Context, q *sqlc.Queries, userID, email string) (*gmail.Service, error) {
 	getOauthParams := sqlc.GetEmailParams{
 		EmailAddress: email,
 		UserID:       userID,
@@ -68,7 +68,7 @@ func gmailService(ctx context.Context, q *sqlc.Queries, userID, email string) (*
 }
 
 func (p *FilterParams) CreateCustomLabels() error {
-	srv, err := gmailService(p.Ctx, p.Q, p.UserID, p.Email)
+	srv, err := ConstructGmailService(p.Ctx, p.Q, p.UserID, p.Email)
 	if err != nil {
 		return err
 	}
@@ -105,7 +105,7 @@ func (p *FilterParams) CreateCustomLabels() error {
 }
 
 func (p *FilterParams) CreateHoldFilter() error {
-	srv, err := gmailService(p.Ctx, p.Q, p.UserID, p.Email)
+	srv, err := ConstructGmailService(p.Ctx, p.Q, p.UserID, p.Email)
 	if err != nil {
 		return err
 	}

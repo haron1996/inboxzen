@@ -11,11 +11,11 @@
 	</div>
 	<div class="buttons">
 		{#if $loading}
-			<CardSkeleton height={10} width={80} padding={0} borderRadius={0} />
+			<CardSkeleton height={10} width={100} padding={0} borderRadius={0} />
 		{:else}
 			<button class:running={$running} on:click|preventDefault={activate}>
 				<div class="pulse"></div>
-				<span>{$running ? 'RUNNING' : 'STOPPED'}</span>
+				<span>{$running ? 'RUNNING' : 'ACTIVATE'}</span>
 			</button>
 		{/if}
 	</div>
@@ -23,13 +23,14 @@
 
 <style lang="scss">
 	.status {
-		width: 80rem;
+		width: 70%;
 		min-height: max-content;
 		background-color: $white;
 		display: flex;
 		flex-direction: column;
 		border-radius: 0.3rem;
-		border: 0.1rem solid #0d1b2a;
+		border: 0.1rem solid #e5e5e5;
+		margin: 1rem auto;
 
 		.top {
 			display: flex;
@@ -64,7 +65,7 @@
 
 			button {
 				background-color: #fff;
-				border: 0.2rem solid #d90429;
+				border: 0.1rem solid #d90429;
 				padding: 1rem;
 				cursor: pointer;
 				border-radius: 0.3rem;

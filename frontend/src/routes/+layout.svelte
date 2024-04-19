@@ -1,5 +1,6 @@
 <script lang="ts">
 	import './../global.scss';
+	import 'animate.css';
 	import SuccessAlerts from './SuccessAlerts.svelte';
 	import ErrorAlerts from './ErrorAlerts.svelte';
 </script>

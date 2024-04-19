@@ -111,13 +111,14 @@
 
 <style lang="scss">
 	.vip-domains {
-		width: 80rem;
+		width: 70%;
+		margin: 1rem auto;
 		min-height: max-content;
 		background-color: $white;
 		display: flex;
 		flex-direction: column;
 		border-radius: 0.3rem;
-		border: 0.1rem solid #0d1b2a;
+		border: 0.1rem solid #e5e5e5;
 
 		.top {
 			display: flex;
@@ -160,8 +161,8 @@
 				width: max-content;
 				border-radius: 0.5rem;
 				gap: 0.3rem;
-				background-color: #ffd166;
-				border: 0.2rem solid #fb8500;
+				background-color: #fbfbff;
+				border: 0.1rem solid #e5e5e5;
 
 				span {
 					font-size: 1.3rem;

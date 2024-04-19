@@ -79,6 +79,7 @@ export function showMenu(e: MouseEvent) {
 			break;
 		default:
 			menu.style.display = 'block';
+			menu.classList.add('animate__bounceIn');
 			svg.style.transform = 'rotate(0.5turn)';
 			break;
 	}
@@ -796,6 +797,45 @@ export const switchAccount = async (e: MouseEvent) => {
 			hideMenu();
 			loading.set(false);
 			location.reload();
+		});
+};
+
+// get first time senders
+export const getFirstTimeSenders = async () => {
+	getURL();
+
+	url = `${url}/private/getfirsttimesenders`;
+
+	await fetch(url, {
+		method: 'GET',
+		mode: 'cors',
+		cache: 'no-cache',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		redirect: 'follow',
+		referrerPolicy: 'no-referrer'
+	})
+		.then(async (response) => {
+			if (!response.ok) {
+				result = await response.json();
+				message = result.message;
+				throw new Error(message);
+			}
+
+			return response.json();
+		})
+		.then((data: Session) => {
+			session.set(data);
+		})
+		.catch((error) => {
+			message = error.message;
+			updateErrorMessages(message);
+		})
+		.finally(() => {
+			hideMenu();
+			loading.set(false);
 		});
 };
 

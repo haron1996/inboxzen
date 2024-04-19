@@ -3,18 +3,6 @@
 	import { switchAccount, updateErrorMessages } from '../../utils';
 	import ProfileCard from './ProfileCard.svelte';
 
-	function loadProfileSettings() {
-		location.href = '/dashboard/profile';
-	}
-
-	function loadAccountSettings() {
-		location.href = '/dashboard/settings';
-	}
-
-	function goToPreAuth() {
-		location.href = '/preauth';
-	}
-
 	async function logout() {
 		const url = `${$URL}/private/logout`;
 
@@ -51,22 +39,22 @@
 	}
 </script>
 
-<menu id="menu">
-	<div class="logout" role="none" on:click={logout}>
-		<span>SIGN OUT</span>
-	</div>
-	<div class="add-account" role="none" on:click={goToPreAuth}>
+<menu class="animate__animated" id="menu">
+	<a href="/dashboard">
+		<span>DASHBOARD</span>
+	</a>
+	<a href="/preauth">
 		<span>ADD ACCOUNT</span>
-	</div>
-	<div class="account" role="none" on:click={loadProfileSettings}>
+	</a>
+	<a href="/dashboard/profile">
 		<span>PROFILE SETTINGS</span>
-	</div>
-	<div class="account" role="none" on:click={loadAccountSettings}>
-		<span>ACCOUNT SETTINGS</span>
-	</div>
+	</a>
+	<a href="/dashboard/screener">
+		<span>INBOX SCREENER</span>
+	</a>
 	{#if $session && $session.emails}
 		{#each $session.emails as { account_name, email_address, profile_picture }}
-			<div class="account">
+			<a href="/" on:click|preventDefault={() => {}}>
 				<ProfileCard
 					name={account_name}
 					email={email_address}
@@ -77,7 +65,7 @@
 						switchAccount(e);
 					}}
 				/>
-			</div>
+			</a>
 		{/each}
 	{/if}
 </menu>
@@ -91,18 +79,20 @@
 		overflow-y: auto;
 		cursor: pointer;
 		border-radius: 0.3rem;
-		transition: all 0.3s linear;
-		border: 0.2rem solid #0d1b2a;
 		max-height: 90dvh;
+		box-shadow: rgba(0, 0, 0, 0.09) 0px 3px 12px;
+		background-color: #00a8e8;
+		border: 0.2rem solid #00a8e8;
+		z-index: 2000;
 
-		div {
+		a {
 			width: 100%;
-			min-height: 4rem;
+			min-height: 5rem;
 			display: flex;
 			align-items: center;
 			padding: 1rem;
 			gap: 1rem;
-			transition: all 0.3s linear;
+			text-decoration: none;
 
 			span {
 				font-family: $spline;
@@ -112,11 +102,11 @@
 			}
 
 			&:hover {
-				background-color: #ffd166;
+				background-color: #1e91d6;
 			}
 		}
 
-		div:not(:last-child) {
+		a:not(:last-child) {
 			border-bottom: 0.1rem solid #dad7cd;
 		}
 	}
