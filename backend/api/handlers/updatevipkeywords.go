@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/charmbracelet/log"
@@ -13,6 +14,7 @@ import (
 	"github.com/haron1996/inboxzen/sqlc"
 	"github.com/haron1996/inboxzen/utils"
 	"github.com/haron1996/inboxzen/viper"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -66,7 +68,32 @@ func UpdateVipKeywords(w http.ResponseWriter, r *http.Request) error {
 	email := payload.Email
 	userID := payload.UserID
 
-	err = q.DeleteKeywords(ctx, email)
+	getEmailParams := sqlc.GetEmailParams{
+		EmailAddress: email,
+		UserID:       userID,
+	}
+
+	emailFromDB, err := q.GetEmail(ctx, getEmailParams)
+	if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			api.ReturnResponse(w, 404, nil, true, messages.ErrNotFound)
+			return &apperror.APPError{
+				Message: "Email not found",
+				Code:    404,
+				Err:     err,
+			}
+		default:
+			api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+			return &apperror.APPError{
+				Message: "Error getting email address",
+				Code:    500,
+				Err:     err,
+			}
+		}
+	}
+
+	err = q.DeleteKeywords(ctx, emailFromDB.ID)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
@@ -78,9 +105,9 @@ func UpdateVipKeywords(w http.ResponseWriter, r *http.Request) error {
 
 	for _, kw := range req.Keywords {
 		params := sqlc.AddKeywordParams{
-			ID:           utils.RandomString(),
-			Keyword:      kw,
-			EmailAddress: email,
+			ID:      utils.RandomString(),
+			Keyword: kw,
+			EmailID: emailFromDB.ID,
 		}
 
 		_, err := q.AddKeyword(ctx, params)
@@ -101,7 +128,7 @@ func UpdateVipKeywords(w http.ResponseWriter, r *http.Request) error {
 
 	}
 
-	keywords, err := q.GetKeywords(ctx, email)
+	keywords, err := q.GetKeywords(ctx, emailFromDB.ID)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
@@ -111,7 +138,7 @@ func UpdateVipKeywords(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	emails, err := q.GetVipEmails(ctx, email)
+	emails, err := q.GetVipEmails(ctx, emailFromDB.ID)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
@@ -121,7 +148,7 @@ func UpdateVipKeywords(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	domains, err := q.GetDomains(ctx, email)
+	domains, err := q.GetDomains(ctx, emailFromDB.ID)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{

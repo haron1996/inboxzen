@@ -12,7 +12,7 @@ type Deliverytime struct {
 	ID           string             `json:"id"`
 	DeliveryTime string             `json:"delivery_time"`
 	DateAdded    pgtype.Timestamptz `json:"date_added"`
-	EmailAddress string             `json:"email_address"`
+	EmailID      string             `json:"email_id"`
 }
 
 type Email struct {
@@ -36,22 +36,22 @@ type User struct {
 }
 
 type Vipdomain struct {
-	ID           string             `json:"id"`
-	DomainName   string             `json:"domain_name"`
-	DateAdded    pgtype.Timestamptz `json:"date_added"`
-	EmailAddress string             `json:"email_address"`
+	ID         string             `json:"id"`
+	DomainName string             `json:"domain_name"`
+	DateAdded  pgtype.Timestamptz `json:"date_added"`
+	EmailID    string             `json:"email_id"`
 }
 
 type Vipemailaddress struct {
 	ID              string             `json:"id"`
 	VipEmailAddress string             `json:"vip_email_address"`
 	DateAdded       pgtype.Timestamptz `json:"date_added"`
-	EmailAddress    string             `json:"email_address"`
+	EmailID         string             `json:"email_id"`
 }
 
 type Vipkeyword struct {
-	ID           string             `json:"id"`
-	Keyword      string             `json:"keyword"`
-	DateAdded    pgtype.Timestamptz `json:"date_added"`
-	EmailAddress string             `json:"email_address"`
+	ID        string             `json:"id"`
+	Keyword   string             `json:"keyword"`
+	DateAdded pgtype.Timestamptz `json:"date_added"`
+	EmailID   string             `json:"email_id"`
 }

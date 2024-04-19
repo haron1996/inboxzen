@@ -11,7 +11,7 @@ select * from email where user_id = $1;
 select * from email where email_address = $1 and user_id = $2 limit 1;
 
 -- name: Activate :exec
-update email set running = true where email_address = $1 and user_id = $2;
+update email set running = true where id = $1 and user_id = $2;
 
 -- name: UpdateHoldFilterID :exec
-update email set hold_filter_id = $1 where email_address = $2 and user_id = $3;
+update email set hold_filter_id = $1 where id = $2 and user_id = $3;

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/haron1996/inboxzen/api"
@@ -11,6 +12,7 @@ import (
 	"github.com/haron1996/inboxzen/sqlc"
 	"github.com/haron1996/inboxzen/utils"
 	"github.com/haron1996/inboxzen/viper"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -48,7 +50,32 @@ func Activate(w http.ResponseWriter, r *http.Request) error {
 
 	q := sqlc.New(p)
 
-	domains, err := q.GetDomains(ctx, email)
+	getEmailParams := sqlc.GetEmailParams{
+		EmailAddress: email,
+		UserID:       userID,
+	}
+
+	emailFromDB, err := q.GetEmail(ctx, getEmailParams)
+	if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			api.ReturnResponse(w, 404, nil, true, messages.ErrNotFound)
+			return &apperror.APPError{
+				Message: "Email not found",
+				Code:    404,
+				Err:     err,
+			}
+		default:
+			api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+			return &apperror.APPError{
+				Message: "Error getting email address",
+				Code:    500,
+				Err:     err,
+			}
+		}
+	}
+
+	domains, err := q.GetDomains(ctx, emailFromDB.ID)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
@@ -58,7 +85,7 @@ func Activate(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	emails, err := q.GetVipEmails(ctx, email)
+	emails, err := q.GetVipEmails(ctx, emailFromDB.ID)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
@@ -68,7 +95,7 @@ func Activate(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	keywords, err := q.GetKeywords(ctx, email)
+	keywords, err := q.GetKeywords(ctx, emailFromDB.ID)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
@@ -100,12 +127,12 @@ func Activate(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	params := sqlc.ActivateParams{
-		EmailAddress: email,
-		UserID:       userID,
+	activateParams := sqlc.ActivateParams{
+		ID:     emailFromDB.ID,
+		UserID: userID,
 	}
 
-	err = q.Activate(ctx, params)
+	err = q.Activate(ctx, activateParams)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{

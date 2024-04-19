@@ -5,9 +5,9 @@ create table vipKeyword (
     id text not null primary key,
     keyword text not null,
     date_added timestamptz not null default current_timestamp,
-    email_address text not null,
-    unique(keyword, email_address),
-    foreign key (email_address) references email(email_address) on delete cascade
+    email_id text not null,
+    unique(keyword, email_id),
+    foreign key (email_id) references email(id) on delete cascade
 );
 
 -- +goose StatementBegin

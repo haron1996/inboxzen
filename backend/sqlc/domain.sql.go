@@ -10,44 +10,44 @@ import (
 )
 
 const addDomain = `-- name: AddDomain :one
-insert into vipDomain (id, domain_name, email_address)
+insert into vipDomain (id, domain_name, email_id)
 values ($1, $2, $3)
-returning id, domain_name, date_added, email_address
+returning id, domain_name, date_added, email_id
 `
 
 type AddDomainParams struct {
-	ID           string `json:"id"`
-	DomainName   string `json:"domain_name"`
-	EmailAddress string `json:"email_address"`
+	ID         string `json:"id"`
+	DomainName string `json:"domain_name"`
+	EmailID    string `json:"email_id"`
 }
 
 func (q *Queries) AddDomain(ctx context.Context, arg AddDomainParams) (Vipdomain, error) {
-	row := q.db.QueryRow(ctx, addDomain, arg.ID, arg.DomainName, arg.EmailAddress)
+	row := q.db.QueryRow(ctx, addDomain, arg.ID, arg.DomainName, arg.EmailID)
 	var i Vipdomain
 	err := row.Scan(
 		&i.ID,
 		&i.DomainName,
 		&i.DateAdded,
-		&i.EmailAddress,
+		&i.EmailID,
 	)
 	return i, err
 }
 
 const deleteDomains = `-- name: DeleteDomains :exec
-delete from vipDomain where email_address = $1
+delete from vipDomain where email_id = $1
 `
 
-func (q *Queries) DeleteDomains(ctx context.Context, emailAddress string) error {
-	_, err := q.db.Exec(ctx, deleteDomains, emailAddress)
+func (q *Queries) DeleteDomains(ctx context.Context, emailID string) error {
+	_, err := q.db.Exec(ctx, deleteDomains, emailID)
 	return err
 }
 
 const getDomains = `-- name: GetDomains :many
-select id, domain_name, date_added, email_address from vipDomain where email_address = $1
+select id, domain_name, date_added, email_id from vipDomain where email_id = $1
 `
 
-func (q *Queries) GetDomains(ctx context.Context, emailAddress string) ([]Vipdomain, error) {
-	rows, err := q.db.Query(ctx, getDomains, emailAddress)
+func (q *Queries) GetDomains(ctx context.Context, emailID string) ([]Vipdomain, error) {
+	rows, err := q.db.Query(ctx, getDomains, emailID)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (q *Queries) GetDomains(ctx context.Context, emailAddress string) ([]Vipdom
 			&i.ID,
 			&i.DomainName,
 			&i.DateAdded,
-			&i.EmailAddress,
+			&i.EmailID,
 		); err != nil {
 			return nil, err
 		}

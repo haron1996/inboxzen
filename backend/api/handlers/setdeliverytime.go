@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -15,6 +16,7 @@ import (
 	"github.com/haron1996/inboxzen/sqlc"
 	"github.com/haron1996/inboxzen/utils"
 	"github.com/haron1996/inboxzen/viper"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -69,14 +71,40 @@ func SetDeliveryTime(w http.ResponseWriter, r *http.Request) error {
 	payload := ctx.Value(pLoad).(*paseto.PayLoad)
 
 	email := payload.Email
+	userID := payload.UserID
 
 	timeString := fmt.Sprintf("%s:%s", req.Hour, req.Minutes)
 	fullTimeString := fmt.Sprintf("%s %s", timeString, req.AmPm)
 
+	getEmailParams := sqlc.GetEmailParams{
+		EmailAddress: email,
+		UserID:       userID,
+	}
+
+	emailFromDB, err := q.GetEmail(ctx, getEmailParams)
+	if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			api.ReturnResponse(w, 404, nil, true, messages.ErrNotFound)
+			return &apperror.APPError{
+				Message: "Email not found",
+				Code:    404,
+				Err:     err,
+			}
+		default:
+			api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+			return &apperror.APPError{
+				Message: "Error getting email address",
+				Code:    500,
+				Err:     err,
+			}
+		}
+	}
+
 	params := sqlc.SetDeliveryTimeParams{
 		ID:           utils.RandomString(),
 		DeliveryTime: fullTimeString,
-		EmailAddress: email,
+		EmailID:      emailFromDB.ID,
 	}
 
 	dt, err := q.SetDeliveryTime(ctx, params)

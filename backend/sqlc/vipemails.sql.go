@@ -10,44 +10,44 @@ import (
 )
 
 const addVipEmail = `-- name: AddVipEmail :one
-insert into vipEmailAddress (id, vip_email_address, email_address)
+insert into vipEmailAddress (id, vip_email_address, email_id)
 values ($1, $2, $3)
-returning id, vip_email_address, date_added, email_address
+returning id, vip_email_address, date_added, email_id
 `
 
 type AddVipEmailParams struct {
 	ID              string `json:"id"`
 	VipEmailAddress string `json:"vip_email_address"`
-	EmailAddress    string `json:"email_address"`
+	EmailID         string `json:"email_id"`
 }
 
 func (q *Queries) AddVipEmail(ctx context.Context, arg AddVipEmailParams) (Vipemailaddress, error) {
-	row := q.db.QueryRow(ctx, addVipEmail, arg.ID, arg.VipEmailAddress, arg.EmailAddress)
+	row := q.db.QueryRow(ctx, addVipEmail, arg.ID, arg.VipEmailAddress, arg.EmailID)
 	var i Vipemailaddress
 	err := row.Scan(
 		&i.ID,
 		&i.VipEmailAddress,
 		&i.DateAdded,
-		&i.EmailAddress,
+		&i.EmailID,
 	)
 	return i, err
 }
 
 const deleteVipEmails = `-- name: DeleteVipEmails :exec
-delete from vipEmailAddress where email_address = $1
+delete from vipEmailAddress where email_id = $1
 `
 
-func (q *Queries) DeleteVipEmails(ctx context.Context, emailAddress string) error {
-	_, err := q.db.Exec(ctx, deleteVipEmails, emailAddress)
+func (q *Queries) DeleteVipEmails(ctx context.Context, emailID string) error {
+	_, err := q.db.Exec(ctx, deleteVipEmails, emailID)
 	return err
 }
 
 const getVipEmails = `-- name: GetVipEmails :many
-select id, vip_email_address, date_added, email_address from vipEmailAddress where email_address = $1
+select id, vip_email_address, date_added, email_id from vipEmailAddress where email_id = $1
 `
 
-func (q *Queries) GetVipEmails(ctx context.Context, emailAddress string) ([]Vipemailaddress, error) {
-	rows, err := q.db.Query(ctx, getVipEmails, emailAddress)
+func (q *Queries) GetVipEmails(ctx context.Context, emailID string) ([]Vipemailaddress, error) {
+	rows, err := q.db.Query(ctx, getVipEmails, emailID)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (q *Queries) GetVipEmails(ctx context.Context, emailAddress string) ([]Vipe
 			&i.ID,
 			&i.VipEmailAddress,
 			&i.DateAdded,
-			&i.EmailAddress,
+			&i.EmailID,
 		); err != nil {
 			return nil, err
 		}

@@ -180,7 +180,7 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 					}
 
 					// insert default keywords
-					err = addDefaultKeywords(q, email.EmailAddress)
+					err = addDefaultKeywords(q, email.ID)
 					if err != nil {
 						api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 						return &apperror.APPError{
@@ -376,7 +376,7 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	// insert default keywords
-	err = addDefaultKeywords(q, email.EmailAddress)
+	err = addDefaultKeywords(q, email.ID)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
@@ -431,7 +431,7 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func addDefaultKeywords(q *sqlc.Queries, email string) error {
+func addDefaultKeywords(q *sqlc.Queries, emailID string) error {
 	defaultKeywords := []string{
 		"otp",
 		"code",
@@ -447,9 +447,9 @@ func addDefaultKeywords(q *sqlc.Queries, email string) error {
 
 	for _, dk := range defaultKeywords {
 		params := sqlc.AddKeywordParams{
-			ID:           utils.RandomString(),
-			Keyword:      dk,
-			EmailAddress: email,
+			ID:      utils.RandomString(),
+			Keyword: dk,
+			EmailID: emailID,
 		}
 
 		_, err := q.AddKeyword(context.Background(), params)

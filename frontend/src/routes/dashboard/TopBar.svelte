@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { session } from '../../store';
-	import { showMenu } from '../../utils';
+	import { hideMenu, showMenu } from '../../utils';
 	import CardSkeleton from './CardSkeleton.svelte';
 	import ProfileCard from './ProfileCard.svelte';
 </script>
 
-<div class="top-bar">
+<div class="top-bar" role="none" on:click={hideMenu}>
 	{#if $session && $session.email}
 		<ProfileCard
 			name={$session.email.account_name}

@@ -12,16 +12,16 @@ import (
 )
 
 const activate = `-- name: Activate :exec
-update email set running = true where email_address = $1 and user_id = $2
+update email set running = true where id = $1 and user_id = $2
 `
 
 type ActivateParams struct {
-	EmailAddress string `json:"email_address"`
-	UserID       string `json:"user_id"`
+	ID     string `json:"id"`
+	UserID string `json:"user_id"`
 }
 
 func (q *Queries) Activate(ctx context.Context, arg ActivateParams) error {
-	_, err := q.db.Exec(ctx, activate, arg.EmailAddress, arg.UserID)
+	_, err := q.db.Exec(ctx, activate, arg.ID, arg.UserID)
 	return err
 }
 
@@ -154,16 +154,16 @@ func (q *Queries) GetEmailByEmailAddress(ctx context.Context, emailAddress strin
 }
 
 const updateHoldFilterID = `-- name: UpdateHoldFilterID :exec
-update email set hold_filter_id = $1 where email_address = $2 and user_id = $3
+update email set hold_filter_id = $1 where id = $2 and user_id = $3
 `
 
 type UpdateHoldFilterIDParams struct {
 	HoldFilterID pgtype.Text `json:"hold_filter_id"`
-	EmailAddress string      `json:"email_address"`
+	ID           string      `json:"id"`
 	UserID       string      `json:"user_id"`
 }
 
 func (q *Queries) UpdateHoldFilterID(ctx context.Context, arg UpdateHoldFilterIDParams) error {
-	_, err := q.db.Exec(ctx, updateHoldFilterID, arg.HoldFilterID, arg.EmailAddress, arg.UserID)
+	_, err := q.db.Exec(ctx, updateHoldFilterID, arg.HoldFilterID, arg.ID, arg.UserID)
 	return err
 }

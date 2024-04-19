@@ -5,9 +5,9 @@ create table deliveryTime (
     id text not null primary key,
     delivery_time text not null,
     date_added timestamptz not null default current_timestamp,
-    email_address text not null,
-    unique(delivery_time, email_address),
-    foreign key (email_address) references email(email_address) on delete cascade
+    email_id text not null,
+    unique(delivery_time, email_id),
+    foreign key (email_id) references email(id) on delete cascade
 );
 
 -- +goose StatementBegin

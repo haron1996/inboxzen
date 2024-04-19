@@ -35,12 +35,12 @@ func NewFilterParams(q *sqlc.Queries, ctx context.Context, userID, email string,
 }
 
 func ConstructGmailService(ctx context.Context, q *sqlc.Queries, userID, email string) (*gmail.Service, error) {
-	getOauthParams := sqlc.GetEmailParams{
+	getEmailParams := sqlc.GetEmailParams{
 		EmailAddress: email,
 		UserID:       userID,
 	}
 
-	e, err := q.GetEmail(ctx, getOauthParams)
+	e, err := q.GetEmail(ctx, getEmailParams)
 	if err != nil {
 		return nil, err
 	}
@@ -154,12 +154,12 @@ func (p *FilterParams) CreateHoldFilter() error {
 		UserID:       p.UserID,
 	}
 
-	userEmailAccount, err := p.Q.GetEmail(p.Ctx, getEmailParams)
+	emailFromDB, err := p.Q.GetEmail(p.Ctx, getEmailParams)
 	if err != nil {
 		return err
 	}
 
-	holdFilterID := userEmailAccount.HoldFilterID
+	holdFilterID := emailFromDB.HoldFilterID
 
 	existingFilter, err := srv.Users.Settings.Filters.Get(user, holdFilterID.String).Do()
 	if err != nil {
@@ -191,8 +191,8 @@ func (p *FilterParams) CreateHoldFilter() error {
 			String: filter.Id,
 			Valid:  true,
 		},
-		EmailAddress: p.Email,
-		UserID:       p.UserID,
+		ID:     emailFromDB.ID,
+		UserID: p.UserID,
 	}
 
 	err = p.Q.UpdateHoldFilterID(p.Ctx, updateHoldFilterParams)
