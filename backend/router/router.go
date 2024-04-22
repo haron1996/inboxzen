@@ -56,6 +56,7 @@ func Router() *chi.Mux {
 		r.Post("/updateemails", logger.MakeHandler(handlers.UpdateVipEmails, l))
 		r.Post("/updatekeywords", logger.MakeHandler(handlers.UpdateVipKeywords, l))
 		r.Post("/setdeliverytime", logger.MakeHandler(handlers.SetDeliveryTime, l))
+		r.Post("/moveemailstoinbox", logger.MakeHandler(handlers.MoveEmailsToInbox, l))
 		r.Patch("/activate", logger.MakeHandler(handlers.Activate, l))
 		r.Delete("/deletedeliverytime", logger.MakeHandler(handlers.DeleteDeliveryTime, l))
 	})

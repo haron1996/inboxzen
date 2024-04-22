@@ -38,3 +38,5 @@ export let times = writable<Time[]>([]);
 
 // status
 export const running = writable<boolean>(false);
+
+// gmail messages

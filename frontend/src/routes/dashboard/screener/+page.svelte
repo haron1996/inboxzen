@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { afterNavigate } from '$app/navigation';
-	import { getFirstTimeSenders, getUserAccount } from '../../../utils';
+	import { getFirstTimeSenders, getUserAccount, moveEmailsToInbox } from '../../../utils';
 
 	afterNavigate(() => {
 		getUserAccount();
-		getFirstTimeSenders();
+		//getFirstTimeSenders();
+		moveEmailsToInbox();
 	});
 </script>
 
@@ -13,10 +14,10 @@
 </svelte:head>
 
 <section>
-	<div class="new-senders">
-		<div class="top">
+	<div class="new-senders" id="new-senders">
+		<!-- <div class="top">
 			<p>THE PEOPLE BELOW ARE EMAILING YOU FOR THE FIRST TIME. WANT TO HEAR FROM THEM?</p>
-		</div>
+		</div> -->
 	</div>
 </section>
 
@@ -34,15 +35,15 @@
 			background-color: #ffffff;
 			padding: 2rem;
 
-			.top {
-				p {
-					font-family: $spline;
-					text-transform: uppercase;
-					font-size: 1.1rem;
-					font-weight: 600;
-					color: #403d39;
-				}
-			}
+			// .top {
+			// 	p {
+			// 		font-family: $spline;
+			// 		text-transform: uppercase;
+			// 		font-size: 1.1rem;
+			// 		font-weight: 600;
+			// 		color: #403d39;
+			// 	}
+			// }
 		}
 	}
 </style>

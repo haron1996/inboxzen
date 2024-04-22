@@ -1,12 +1,24 @@
 <script lang="ts">
 	import Menu from './Menu.svelte';
-	import { hideMenu } from '../../utils';
+	import { hideMenu, moveEmailsToInbox } from '../../utils';
 	import { afterNavigate } from '$app/navigation';
 	import TopBar from './TopBar.svelte';
+	import { browser } from '$app/environment';
 
 	afterNavigate(() => {
 		hideMenu();
 	});
+
+	function checkTimeAndRun() {
+		const now = new Date();
+		if (now.getHours() === 9 && now.getMinutes() === 0 && now.getSeconds() <= 59) {
+			moveEmailsToInbox();
+		}
+	}
+
+	// if (browser) {
+	// 	setInterval(checkTimeAndRun, 30000);
+	// }
 </script>
 
 <Menu />

@@ -158,7 +158,7 @@ func UpdateVipKeywords(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	filterParams := utils.NewFilterParams(q, ctx, userID, email, domains, emails, keywords)
+	filterParams := utils.NewFilterParams(q, ctx, userID, email, domains, emails, keywords, c)
 
 	err = filterParams.CreateCustomLabels()
 	if err != nil {

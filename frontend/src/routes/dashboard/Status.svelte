@@ -1,19 +1,28 @@
 <script lang="ts">
-	import { loading, running } from '../../store';
-	import { activate } from '../../utils';
+	import { loading, running, times } from '../../store';
+	import { activate, updateErrorMessages } from '../../utils';
 	import CardSkeleton from './CardSkeleton.svelte';
+
+	function handleActivate() {
+		if ($times === null || $times.length === 0) {
+			updateErrorMessages('first set delivery times');
+			return;
+		}
+
+		activate();
+	}
 </script>
 
 <div class="status">
 	<div class="top">
 		<p>STATUS</p>
-		<span>Use this button to toggle status</span>
+		<span>Your emails will be delivered in batches at set times</span>
 	</div>
 	<div class="buttons">
 		{#if $loading}
 			<CardSkeleton height={10} width={100} padding={0} borderRadius={0} />
 		{:else}
-			<button class:running={$running} on:click|preventDefault={activate}>
+			<button class:running={$running} on:click|preventDefault={handleActivate}>
 				<div class="pulse"></div>
 				<span>{$running ? 'RUNNING' : 'ACTIVATE'}</span>
 			</button>

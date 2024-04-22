@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/haron1996/inboxzen/sqlc"
+	"github.com/haron1996/inboxzen/viper"
 	"github.com/jackc/pgx/v5/pgtype"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/gmail/v1"
@@ -20,9 +21,10 @@ type FilterParams struct {
 	VipDomains  []sqlc.Vipdomain
 	VipEmails   []sqlc.Vipemailaddress
 	VipKeywords []sqlc.Vipkeyword
+	Config      viper.Config
 }
 
-func NewFilterParams(q *sqlc.Queries, ctx context.Context, userID, email string, domains []sqlc.Vipdomain, emails []sqlc.Vipemailaddress, keywords []sqlc.Vipkeyword) *FilterParams {
+func NewFilterParams(q *sqlc.Queries, ctx context.Context, userID, email string, domains []sqlc.Vipdomain, emails []sqlc.Vipemailaddress, keywords []sqlc.Vipkeyword, config viper.Config) *FilterParams {
 	return &FilterParams{
 		Q:           q,
 		Ctx:         ctx,
@@ -31,6 +33,7 @@ func NewFilterParams(q *sqlc.Queries, ctx context.Context, userID, email string,
 		VipDomains:  domains,
 		VipEmails:   emails,
 		VipKeywords: keywords,
+		Config:      config,
 	}
 }
 
@@ -75,7 +78,7 @@ func (p *FilterParams) CreateCustomLabels() error {
 
 	user := "me"
 
-	newLabelNames := []string{"GIZ", "Blocked By GIZ"}
+	newLabelNames := []string{p.Config.HoldLabel, p.Config.BlockLabel}
 
 	existingLabels, err := srv.Users.Labels.List(user).Do()
 	if err != nil {
@@ -117,7 +120,7 @@ func (p *FilterParams) CreateHoldFilter() error {
 		return err
 	}
 
-	customLabelName := "GIZ"
+	customLabelName := p.Config.HoldLabel
 
 	var customLabelID string
 

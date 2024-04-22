@@ -49,9 +49,9 @@
 	<a href="/dashboard/profile">
 		<span>PROFILE SETTINGS</span>
 	</a>
-	<a href="/dashboard/screener">
+	<!-- <a href="/dashboard/screener">
 		<span>INBOX SCREENER</span>
-	</a>
+	</a> -->
 	{#if $session && $session.emails}
 		{#each $session.emails as { account_name, email_address, profile_picture }}
 			<a href="/" on:click|preventDefault={() => {}}>

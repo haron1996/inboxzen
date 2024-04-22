@@ -9,6 +9,8 @@ type Config struct {
 	PORT         string `mapstructure:"port"`
 	SecretKeyHex string `mapstructure:"secretKeyHex"`
 	PublicKeyHex string `mapstructure:"publicKeyHex"`
+	HoldLabel    string `mapstructure:"holdLabel"`
+	BlockLabel   string `mapstructure:"blockLabel"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

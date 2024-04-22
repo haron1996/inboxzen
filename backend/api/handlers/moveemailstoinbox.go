@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
+	"github.com/charmbracelet/log"
 	"github.com/haron1996/inboxzen/api"
 	"github.com/haron1996/inboxzen/apperror"
 	"github.com/haron1996/inboxzen/messages"
@@ -14,9 +16,10 @@ import (
 	"github.com/haron1996/inboxzen/viper"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"google.golang.org/api/gmail/v1"
 )
 
-func Activate(w http.ResponseWriter, r *http.Request) error {
+func MoveEmailsToInbox(w http.ResponseWriter, r *http.Request) error {
 	ctx := r.Context()
 
 	const pLoad mw.ContextKey = "payload"
@@ -75,70 +78,90 @@ func Activate(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	domains, err := q.GetDomains(ctx, emailFromDB.ID)
+	times, err := q.GetDeliveryTimes(ctx, emailFromDB.ID)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
-			Message: "Error getting vip domains",
+			Message: "Error getting delivery times",
 			Code:    500,
 			Err:     err,
 		}
 	}
 
-	emails, err := q.GetVipEmails(ctx, emailFromDB.ID)
+	log.Infof("Delivery times: %v", times)
+
+	srv, err := utils.ConstructGmailService(ctx, q, userID, email)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
-			Message: "Error getting user emails",
+			Message: "Error constructing gmail service",
 			Code:    500,
 			Err:     err,
 		}
 	}
 
-	keywords, err := q.GetKeywords(ctx, emailFromDB.ID)
+	user := "me"
+
+	listLabelsResponse, err := srv.Users.Labels.List(user).Do()
+	if err != nil {
+		return err
+	}
+
+	customLabelName := c.HoldLabel
+
+	var customLabelID string
+
+	for _, label := range listLabelsResponse.Labels {
+		if label.Name == customLabelName {
+			customLabelID = label.Id
+			break
+		}
+	}
+
+	query := fmt.Sprintf("label:%s", customLabelName)
+
+	var allMessages []*gmail.Message
+
+	listMessagesResponse, err := srv.Users.Messages.List(user).Q(query).Do()
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 		return &apperror.APPError{
-			Message: "Error getting vip keywords",
+			Message: "Error getting messages",
 			Code:    500,
 			Err:     err,
 		}
 	}
 
-	filterParams := utils.NewFilterParams(q, ctx, userID, email, domains, emails, keywords, c)
+	allMessages = append(allMessages, listMessagesResponse.Messages...)
 
-	err = filterParams.CreateCustomLabels()
-	if err != nil {
-		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
-		return &apperror.APPError{
-			Message: "Error creating label",
-			Code:    500,
-			Err:     err,
+	for listMessagesResponse.NextPageToken != "" {
+		listMessagesResponse, err = srv.Users.Messages.List(user).PageToken(listMessagesResponse.NextPageToken).Q(query).Do()
+		if err != nil {
+			api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+			return &apperror.APPError{
+				Message: "Error getting messages",
+				Code:    500,
+				Err:     err,
+			}
 		}
+
+		allMessages = append(allMessages, listMessagesResponse.Messages...)
 	}
 
-	err = filterParams.CreateHoldFilter()
-	if err != nil {
-		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
-		return &apperror.APPError{
-			Message: "Error creating hold filter",
-			Code:    500,
-			Err:     err,
+	for _, message := range allMessages {
+		modifyMessageRequest := &gmail.ModifyMessageRequest{
+			RemoveLabelIds: []string{customLabelID},
+			AddLabelIds:    []string{"INBOX"},
 		}
-	}
 
-	activateParams := sqlc.ActivateParams{
-		ID:     emailFromDB.ID,
-		UserID: userID,
-	}
-
-	err = q.Activate(ctx, activateParams)
-	if err != nil {
-		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
-		return &apperror.APPError{
-			Message: "Error activating email",
-			Code:    500,
-			Err:     err,
+		_, err = srv.Users.Messages.Modify(user, message.Id, modifyMessageRequest).Do()
+		if err != nil {
+			api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+			return &apperror.APPError{
+				Message: "Error moving message to inbox",
+				Code:    500,
+				Err:     err,
+			}
 		}
 	}
 

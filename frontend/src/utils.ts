@@ -826,8 +826,47 @@ export const getFirstTimeSenders = async () => {
 
 			return response.json();
 		})
-		.then((data: Session) => {
-			session.set(data);
+		.then((data) => {
+			console.log(data);
+		})
+		.catch((error) => {
+			message = error.message;
+			updateErrorMessages(message);
+		})
+		.finally(() => {
+			hideMenu();
+			loading.set(false);
+		});
+};
+
+// move emails to inbox
+export const moveEmailsToInbox = async () => {
+	getURL();
+
+	url = `${url}/private/moveemailstoinbox`;
+
+	await fetch(url, {
+		method: 'POST',
+		mode: 'cors',
+		cache: 'no-cache',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		redirect: 'follow',
+		referrerPolicy: 'no-referrer'
+	})
+		.then(async (response) => {
+			if (!response.ok) {
+				result = await response.json();
+				message = result.message;
+				throw new Error(message);
+			}
+
+			return response.json();
+		})
+		.then((data) => {
+			// log data
 		})
 		.catch((error) => {
 			message = error.message;

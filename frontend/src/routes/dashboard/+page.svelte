@@ -5,7 +5,6 @@
 	import VipEmails from './VipEmails.svelte';
 	import VipKeywords from './VipKeywords.svelte';
 	import DeliveryTime from './DeliveryTime.svelte';
-	import ScreenerCount from './ScreenerCount.svelte';
 	import { afterNavigate } from '$app/navigation';
 
 	afterNavigate(() => {
@@ -20,7 +19,6 @@
 <svelte:window on:resize={hideMenu} />
 
 <section role="none" on:click={hideMenu}>
-	<ScreenerCount />
 	<Status />
 	<DeliveryTime />
 	<VipDomains />
