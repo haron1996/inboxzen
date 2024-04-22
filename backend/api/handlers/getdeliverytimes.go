@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/haron1996/inboxzen/api"
 	"github.com/haron1996/inboxzen/apperror"
@@ -84,30 +85,31 @@ func GetDeliveryTimes(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	var dts []deliveryTime
+	var deleveryTimes []setDeliveryTimesResponse
 
-	for _, tm := range times {
-		hour, minute, amPm, err := parseTime(tm)
-		if err != nil {
-			api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
-			return &apperror.APPError{
-				Message: "Error parsing time",
-				Code:    500,
-				Err:     err,
-			}
+	for _, t := range times {
+		microsecondsSinceMidnight := t.DeliveryTime.Microseconds // Example microseconds since midnight
+
+		// Get midnight of the current day
+		now := time.Now()
+
+		midnight := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+
+		// Create new time by adding microseconds to midnight
+		newTime := midnight.Add(time.Duration(microsecondsSinceMidnight) * time.Microsecond)
+
+		// Format the time in 24-hour format
+		timeStr := newTime.Format("15:04")
+
+		dt := setDeliveryTimesResponse{
+			ID:           t.ID,
+			DeliveryTime: timeStr,
 		}
 
-		res := deliveryTime{
-			ID:      tm.ID,
-			Hour:    hour,
-			Minutes: minute,
-			AmPm:    amPm,
-		}
-
-		dts = append(dts, res)
+		deleveryTimes = append(deleveryTimes, dt)
 	}
 
-	api.ReturnResponse(w, 200, dts, false, "")
+	api.ReturnResponse(w, 200, deleveryTimes, false, "")
 
 	return nil
 }

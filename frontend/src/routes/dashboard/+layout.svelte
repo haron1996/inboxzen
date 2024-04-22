@@ -4,21 +4,21 @@
 	import { afterNavigate } from '$app/navigation';
 	import TopBar from './TopBar.svelte';
 	import { browser } from '$app/environment';
+	import { session } from '../../store';
 
 	afterNavigate(() => {
 		hideMenu();
 	});
 
-	function checkTimeAndRun() {
-		const now = new Date();
-		if (now.getHours() === 9 && now.getMinutes() === 0 && now.getSeconds() <= 59) {
+	function handleMoveEmailsToInbox() {
+		if ($session.email?.running) {
 			moveEmailsToInbox();
 		}
 	}
 
-	// if (browser) {
-	// 	setInterval(checkTimeAndRun, 30000);
-	// }
+	if (browser) {
+		setInterval(handleMoveEmailsToInbox, 10000);
+	}
 </script>
 
 <Menu />

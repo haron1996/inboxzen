@@ -6,6 +6,7 @@ interface UserEmailAccount {
 	primaryaccount?: boolean;
 	profile_picture?: string;
 	user_id?: string;
+	running?: boolean;
 }
 
 // user session interface
@@ -41,7 +42,5 @@ export interface Keyword {
 // inbox delivey times interface
 export interface Time {
 	id?: string | undefined;
-	hour?: string | undefined;
-	minutes?: string | undefined;
-	am_pm?: string | undefined;
+	delivery_time?: string | undefined;
 }

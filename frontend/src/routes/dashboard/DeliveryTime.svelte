@@ -1,141 +1,151 @@
 <script lang="ts">
 	import { loading, time, times } from '../../store';
-	import { deleteInboxDeliveryTime, setInboxDeliveryTime, updateErrorMessages } from '../../utils';
+	import type { Time } from '../../types';
+	import { setDeliveryTimes, updateErrorMessages } from '../../utils';
 	import Button from '../Button.svelte';
 	import CardSkeleton from './CardSkeleton.svelte';
 
-	function handleHourInputBlur() {
-		if ($time.hour === '' || $time.hour === undefined) return;
-
-		if ($time.hour && $time.hour.length > 1) return;
-
-		$time.hour = '0' + $time.hour;
+	function isValidTimeFormat(input: string): boolean {
+		var pattern = /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/;
+		return pattern.test(input);
 	}
 
-	function handleMinutesInputBlur() {
-		if ($time.minutes === '' || $time.minutes === undefined) return;
+	function handleInputBlur() {
+		if ($time.delivery_time === undefined) return;
 
-		if ($time.minutes && $time.minutes.length > 1) return;
+		const containsLetter = /[a-zA-Z]/.test($time.delivery_time);
 
-		$time.minutes = '0' + $time.minutes;
-	}
-
-	function handleSetInboxDeliveryTime() {
-		if (
-			$time.hour === '' ||
-			$time.hour === undefined ||
-			$time.minutes === '' ||
-			$time.minutes === undefined ||
-			$time.am_pm === '' ||
-			$time.am_pm === undefined
-		) {
-			updateErrorMessages('Set a valid time before submitting');
+		if (containsLetter) {
+			$time.delivery_time = '';
+			updateErrorMessages('USE 24-HOUR FORMAT ONLY');
 			return;
 		}
 
-		const data = {
-			hour: $time.hour,
-			minutes: $time.minutes,
-			am_pm: $time.am_pm
-		};
+		if (!isValidTimeFormat($time.delivery_time)) {
+			$time.delivery_time = '';
+			updateErrorMessages('USE 24-HOUR FORMAT ONLY');
+			return;
+		}
 
-		setInboxDeliveryTime(data, $times);
+		if ($times) {
+			let found = false;
+
+			$times.forEach((t) => {
+				if (t.delivery_time === $time.delivery_time) {
+					found = true;
+					return;
+				}
+			});
+
+			if (found) {
+				$time = {};
+				return;
+			}
+
+			$times = [$time, ...$times];
+		} else {
+			const ts: Time[] = [$time];
+			times.set(ts);
+		}
+
+		$time = {};
 	}
 
-	function handleDeleteDeliveryTime(e: MouseEvent) {
-		const t = e.currentTarget as SVGAElement | null;
+	function handleInputKeydown(e: KeyboardEvent) {
+		if (e.code !== 'Enter' && e.code !== 'Comma') return;
 
-		if (t === null) return;
+		e.preventDefault();
 
-		const div = t.closest('.domain') as HTMLDivElement | null;
+		handleInputBlur();
+	}
+
+	function handleSetDeliveryTimes() {
+		let params: string[] = [];
+
+		if ($times) {
+			$times.forEach((t) => {
+				if (t.delivery_time) {
+					params = [t.delivery_time, ...params];
+				}
+			});
+		} else {
+			params = [];
+		}
+
+		setDeliveryTimes(params);
+	}
+
+	function removeDeliveryTime(e: MouseEvent) {
+		const t = e.currentTarget as HTMLElement;
+
+		const div = t.closest('div.time') as HTMLElement | null;
 
 		if (div === null) return;
 
 		const id = div.dataset.id;
 
-		const data = {
-			id: id
-		};
+		if (id === undefined) return;
 
-		deleteInboxDeliveryTime(data, $times);
+		$times = $times.filter((t) => t.id !== id);
 	}
 </script>
 
 <div class="delivery-times">
 	<div class="top">
 		<p>DELIVERY TIMES</p>
-		<span>Set what time your emails will be delivered to your inbox</span>
+		<span>WE WILL DELIVER EMAILS TO YOUR INBOX AT SET</span>
 	</div>
 	<div class="times">
-		<div class="setter">
-			<input
-				type="text"
-				name="hour"
-				id="hour"
-				autocomplete="off"
-				placeholder="Hour"
-				bind:value={$time.hour}
-				on:blur={handleHourInputBlur}
-			/>
-			<input
-				type="text"
-				name="minutes"
-				id="minutes"
-				autocomplete="off"
-				placeholder="Minutes"
-				bind:value={$time.minutes}
-				on:blur={handleMinutesInputBlur}
-			/>
-			<input
-				type="text"
-				name="am_pm"
-				id="am_pm"
-				autocomplete="off"
-				placeholder="am/pm"
-				bind:value={$time.am_pm}
-			/>
-			<Button
-				height={4}
-				width={10}
-				borderRadius={0.3}
-				color="#0d1b2a"
-				padding={0.5}
-				text="update"
-				onClick={handleSetInboxDeliveryTime}
-			/>
-		</div>
-		<div class="set-times">
-			{#if $loading}
-				<CardSkeleton height={10} width={80} padding={0} borderRadius={0} />
-			{/if}
-			{#if $times}
-				{#each $times as t}
-					<div class="domain" data-id={t.id}>
-						<span>{t.hour}:{t.minutes} {t.am_pm}</span>
-						<svg
-							width="24px"
-							height="24px"
+		{#if $loading}
+			<CardSkeleton height={10} width={80} padding={0} borderRadius={0} />
+		{/if}
+		{#if $times}
+			{#each $times as { id, delivery_time }}
+				<div class="time" data-id={id}>
+					<span>{delivery_time}</span>
+					<svg
+						width="24px"
+						height="24px"
+						stroke-width="1.5"
+						viewBox="0 0 24 24"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+						color="#000000"
+						role="none"
+						on:click={removeDeliveryTime}
+						><path
+							d="M6.75827 17.2426L12.0009 12M17.2435 6.75736L12.0009 12M12.0009 12L6.75827 6.75736M12.0009 12L17.2435 17.2426"
+							stroke="#000000"
 							stroke-width="1.5"
-							viewBox="0 0 24 24"
-							fill="none"
-							xmlns="http://www.w3.org/2000/svg"
-							color="#000000"
-							role="none"
-							on:click={(e) => {
-								handleDeleteDeliveryTime(e);
-							}}
-							><path
-								d="M6.75827 17.2426L12.0009 12M17.2435 6.75736L12.0009 12M12.0009 12L6.75827 6.75736M12.0009 12L17.2435 17.2426"
-								stroke="#000000"
-								stroke-width="1.5"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-							></path></svg
-						>
-					</div>
-				{/each}
-			{/if}
-		</div>
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						></path></svg
+					>
+				</div>
+			{/each}
+		{/if}
+
+		<input
+			type="text"
+			name="time"
+			id="time"
+			autocomplete="off"
+			placeholder="24-hour format..."
+			bind:value={$time.delivery_time}
+			on:blur={handleInputBlur}
+			on:keydown={handleInputKeydown}
+		/>
+	</div>
+	<div class="bottom">
+		<Button
+			height={4}
+			width={10}
+			borderRadius={0.3}
+			color="#0d1b2a"
+			padding={0.5}
+			text="update"
+			onClick={handleSetDeliveryTimes}
+		/>
 	</div>
 </div>
 
@@ -175,64 +185,53 @@
 		}
 
 		.times {
+			min-height: max-content;
 			display: flex;
-			flex-direction: column;
+			flex-flow: row wrap;
+			align-content: start;
+			align-items: center;
 			gap: 1rem;
 			padding: 2rem;
 
-			.setter {
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-
-				input {
-					outline: none;
-					border: none;
-					border-bottom: 0.1rem solid #e5e5e5;
-					padding: 0.5rem;
-					text-transform: lowercase;
-					font-family: $spline;
-					font-size: 1.2rem;
-					font-weight: 500;
-					letter-spacing: 0.1rem;
-					text-transform: uppercase;
-				}
-			}
-
-			.set-times {
+			.time {
 				min-height: max-content;
 				display: flex;
-				flex-flow: row wrap;
-				align-content: start;
 				align-items: center;
-				gap: 1rem;
+				padding: 0.5rem 0.5rem 0.5rem 0.7rem;
+				width: max-content;
+				border-radius: 0.5rem;
+				gap: 0.3rem;
+				background-color: #fbfbff;
+				border: 0.1rem solid #e5e5e5;
 
-				.domain {
-					min-height: max-content;
-					display: flex;
-					align-items: center;
-					padding: 0.5rem 0.5rem 0.5rem 0.7rem;
-					width: max-content;
-					border-radius: 0.5rem;
-					gap: 0.3rem;
-					background-color: #fbfbff;
-					border: 0.1rem solid #e5e5e5;
+				span {
+					font-size: 1.3rem;
+					font-family: $spline;
+					font-weight: 500;
+					color: $black-1;
+				}
 
-					span {
-						font-size: 1.3rem;
-						font-family: $spline;
-						font-weight: 500;
-						color: $black-1;
-						text-transform: uppercase;
-					}
-
-					svg {
-						height: 1.5rem;
-						width: 1.5rem;
-						cursor: pointer;
-					}
+				svg {
+					height: 1.5rem;
+					width: 1.5rem;
+					cursor: pointer;
 				}
 			}
+
+			input {
+				border: none;
+				outline: none;
+				font-family: $spline;
+				padding: 0.5rem;
+				text-transform: lowercase;
+			}
+		}
+
+		.bottom {
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			padding: 2rem;
 		}
 	}
 </style>

@@ -190,17 +190,6 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 						}
 					}
 
-					// set default delivery times
-					err = setDefaultDeliveryTimes(q, email.ID, ctx)
-					if err != nil {
-						api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
-						return &apperror.APPError{
-							Message: "Error setting delivery time",
-							Code:    500,
-							Err:     err,
-						}
-					}
-
 					t, p, err := paseto.CreateToken(userID, ui.Email, issuedAt, duration)
 					if err != nil {
 						api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
@@ -397,17 +386,6 @@ func CompleteGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	// set default delivery times
-	err = setDefaultDeliveryTimes(q, email.ID, ctx)
-	if err != nil {
-		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
-		return &apperror.APPError{
-			Message: "Error setting delivery time",
-			Code:    500,
-			Err:     err,
-		}
-	}
-
 	t, pload, err := paseto.CreateToken(userID, email.EmailAddress, issuedAt, duration)
 	if err != nil {
 		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
@@ -475,29 +453,6 @@ func addDefaultKeywords(q *sqlc.Queries, emailID string, ctx context.Context) er
 		}
 
 		_, err := q.AddKeyword(ctx, params)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func setDefaultDeliveryTimes(q *sqlc.Queries, emailID string, ctx context.Context) error {
-	times := []string{
-		"09:00 am",
-		"01:00 pm",
-		"05:00 pm",
-	}
-
-	for _, t := range times {
-		params := sqlc.SetDeliveryTimeParams{
-			ID:           utils.RandomString(),
-			DeliveryTime: t,
-			EmailID:      emailID,
-		}
-
-		_, err := q.SetDeliveryTime(ctx, params)
 		if err != nil {
 			return err
 		}

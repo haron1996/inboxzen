@@ -340,7 +340,7 @@ export const updateVipDomains = async (doms: Domain[]) => {
 		})
 		.then((data: Domain[]) => {
 			domains.set(data);
-			updateSuccessMessages('domains updated successfully');
+			updateSuccessMessages('update successful');
 		})
 		.catch((error) => {
 			message = error.message;
@@ -420,7 +420,7 @@ export const updateVipEmailAddresses = async (es: Email[]) => {
 		})
 		.then((data: Email[]) => {
 			emails.set(data);
-			updateSuccessMessages('emails updated successfully');
+			updateSuccessMessages('update successful');
 		})
 		.catch((error) => {
 			message = error.message;
@@ -500,7 +500,7 @@ export const updateVipKeywords = async (kws: Keyword[]) => {
 		})
 		.then((data: Keyword[]) => {
 			keywords.set(data);
-			updateSuccessMessages('keywords updated successfully');
+			updateSuccessMessages('update successful');
 		})
 		.catch((error) => {
 			message = error.message;
@@ -550,10 +550,14 @@ export const getVipKeywords = async () => {
 };
 
 // set inbox delivery times
-export const setInboxDeliveryTime = async (params: {}, dts: Time[]) => {
+export const setDeliveryTimes = async (params: string[]) => {
 	getURL();
 
 	url = `${url}/private/setdeliverytime`;
+
+	const data = {
+		times: params
+	};
 
 	await fetch(url, {
 		method: 'POST',
@@ -565,7 +569,7 @@ export const setInboxDeliveryTime = async (params: {}, dts: Time[]) => {
 		},
 		redirect: 'follow',
 		referrerPolicy: 'no-referrer',
-		body: JSON.stringify(params)
+		body: JSON.stringify(data)
 	})
 		.then(async (response) => {
 			if (!response.ok) {
@@ -576,16 +580,9 @@ export const setInboxDeliveryTime = async (params: {}, dts: Time[]) => {
 
 			return response.json();
 		})
-		.then((data: Time) => {
-			if (dts === null) {
-				let ts: Time[] = [];
-				ts = [data, ...ts];
-				times.set(ts);
-			} else {
-				times.update((t) => [data, ...t]);
-			}
-
-			time.set({});
+		.then((data: Time[]) => {
+			times.set(data);
+			updateSuccessMessages('update successful');
 		})
 		.catch((error) => {
 			message = error.message;
@@ -597,7 +594,7 @@ export const setInboxDeliveryTime = async (params: {}, dts: Time[]) => {
 };
 
 // get inbox delivery times
-export const getInboxDeliveryTimes = async () => {
+export const getDeliveryTimes = async () => {
 	getURL();
 
 	url = `${url}/private/getdeliverytimes`;
@@ -624,47 +621,6 @@ export const getInboxDeliveryTimes = async () => {
 		})
 		.then((data: Time[]) => {
 			times.set(data);
-		})
-		.catch((error) => {
-			message = error.message;
-			updateErrorMessages(message);
-		})
-		.finally(() => {
-			loading.set(false);
-		});
-};
-
-// delete inbox delivery time
-export const deleteInboxDeliveryTime = async (params: {}, dts: Time[]) => {
-	getURL();
-
-	url = `${url}/private/deletedeliverytime`;
-
-	await fetch(url, {
-		method: 'DELETE',
-		mode: 'cors',
-		cache: 'no-cache',
-		credentials: 'include',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		redirect: 'follow',
-		referrerPolicy: 'no-referrer',
-		body: JSON.stringify(params)
-	})
-		.then(async (response) => {
-			if (!response.ok) {
-				result = await response.json();
-				message = result.message;
-				throw new Error(message);
-			}
-
-			return response.json();
-		})
-		.then((data: Time) => {
-			dts = dts.filter((dt) => dt.id !== data.id);
-			times.set(dts);
-			updateSuccessMessages('time deleted successfully');
 		})
 		.catch((error) => {
 			message = error.message;
@@ -703,7 +659,7 @@ export const activate = async () => {
 		})
 		.then((data) => {
 			running.set(true);
-			updateSuccessMessages('service started successfully');
+			updateSuccessMessages('service running');
 		})
 		.catch((error) => {
 			message = error.message;
@@ -800,45 +756,6 @@ export const switchAccount = async (e: MouseEvent) => {
 		});
 };
 
-// get first time senders
-export const getFirstTimeSenders = async () => {
-	getURL();
-
-	url = `${url}/private/getfirsttimesenders`;
-
-	await fetch(url, {
-		method: 'GET',
-		mode: 'cors',
-		cache: 'no-cache',
-		credentials: 'include',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		redirect: 'follow',
-		referrerPolicy: 'no-referrer'
-	})
-		.then(async (response) => {
-			if (!response.ok) {
-				result = await response.json();
-				message = result.message;
-				throw new Error(message);
-			}
-
-			return response.json();
-		})
-		.then((data) => {
-			console.log(data);
-		})
-		.catch((error) => {
-			message = error.message;
-			updateErrorMessages(message);
-		})
-		.finally(() => {
-			hideMenu();
-			loading.set(false);
-		});
-};
-
 // move emails to inbox
 export const moveEmailsToInbox = async () => {
 	getURL();
@@ -870,7 +787,7 @@ export const moveEmailsToInbox = async () => {
 		})
 		.catch((error) => {
 			message = error.message;
-			updateErrorMessages(message);
+			//updateErrorMessages(message);
 		})
 		.finally(() => {
 			hideMenu();
@@ -884,7 +801,7 @@ export const getUserEmailSettings = async () => {
 		await Promise.all([
 			getUserAccount(),
 			getServiceStatus(),
-			getInboxDeliveryTimes(),
+			getDeliveryTimes(),
 			getVipDomains(),
 			getVipEmailAddresses(),
 			getVipKeywords()

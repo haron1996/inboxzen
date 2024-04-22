@@ -10,7 +10,7 @@ import (
 
 type Deliverytime struct {
 	ID           string             `json:"id"`
-	DeliveryTime string             `json:"delivery_time"`
+	DeliveryTime pgtype.Time        `json:"delivery_time"`
 	DateAdded    pgtype.Timestamptz `json:"date_added"`
 	EmailID      string             `json:"email_id"`
 }
@@ -27,6 +27,16 @@ type Email struct {
 	Oauth2Token    []byte             `json:"oauth2_token"`
 	HoldFilterID   pgtype.Text        `json:"hold_filter_id"`
 	BlockFilterID  pgtype.Text        `json:"block_filter_id"`
+}
+
+type Sender struct {
+	ID                 string `json:"id"`
+	SenderEmailAddress string `json:"sender_email_address"`
+}
+
+type SenderEmail struct {
+	SenderID string `json:"sender_id"`
+	EmailID  string `json:"email_id"`
 }
 
 type User struct {

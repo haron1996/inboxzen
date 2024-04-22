@@ -3,9 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/haron1996/inboxzen/api"
@@ -17,20 +15,23 @@ import (
 	"github.com/haron1996/inboxzen/utils"
 	"github.com/haron1996/inboxzen/viper"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type deliveryTime struct {
-	ID      string `json:"id"`
-	Hour    string `json:"hour"`
-	Minutes string `json:"minutes"`
-	AmPm    string `json:"am_pm"`
+type setDeliveryTimesRequest struct {
+	Times []string `json:"times"`
+}
+
+type setDeliveryTimesResponse struct {
+	ID           string `json:"id"`
+	DeliveryTime string `json:"delivery_time"`
 }
 
 func SetDeliveryTime(w http.ResponseWriter, r *http.Request) error {
 	ctx := r.Context()
 
-	var req *deliveryTime
+	var req *setDeliveryTimesRequest
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
@@ -73,9 +74,6 @@ func SetDeliveryTime(w http.ResponseWriter, r *http.Request) error {
 	email := payload.Email
 	userID := payload.UserID
 
-	timeString := fmt.Sprintf("%s:%s", req.Hour, req.Minutes)
-	fullTimeString := fmt.Sprintf("%s %s", timeString, req.AmPm)
-
 	getEmailParams := sqlc.GetEmailParams{
 		EmailAddress: email,
 		UserID:       userID,
@@ -101,24 +99,48 @@ func SetDeliveryTime(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	params := sqlc.SetDeliveryTimeParams{
-		ID:           utils.RandomString(),
-		DeliveryTime: fullTimeString,
-		EmailID:      emailFromDB.ID,
+	emailID := emailFromDB.ID
+
+	err = q.DeleteDeliveryTimes(ctx, emailID)
+	if err != nil {
+		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+		return &apperror.APPError{
+			Message: "Error deleting delivery times",
+			Code:    500,
+			Err:     err,
+		}
 	}
 
-	dt, err := q.SetDeliveryTime(ctx, params)
-	if err != nil {
-		switch {
-		case err.Error() == `ERROR: duplicate key value violates unique constraint "deliverytime_delivery_time_email_address_key" (SQLSTATE 23505)`:
-			api.ReturnResponse(w, 409, nil, true, messages.ErrConflict)
+	var deleveryTimes []setDeliveryTimesResponse
+
+	for _, timeStr := range req.Times {
+		parsedTime, err := time.Parse("15:04", timeStr)
+		if err != nil {
+			api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 			return &apperror.APPError{
-				Message: "Error setting delivery time",
-				Code:    409,
+				Message: "Error formatting string time",
+				Code:    500,
 				Err:     err,
 			}
+		}
 
-		default:
+		// Get midnight of the same day
+		midnight := time.Date(parsedTime.Year(), parsedTime.Month(), parsedTime.Day(), 0, 0, 0, 0, parsedTime.Location())
+
+		// Calculate difference in microseconds
+		microseconds := parsedTime.Sub(midnight).Microseconds()
+
+		params := sqlc.SetDeliveryTimeParams{
+			ID: utils.RandomString(),
+			DeliveryTime: pgtype.Time{
+				Microseconds: microseconds,
+				Valid:        true,
+			},
+			EmailID: emailID,
+		}
+
+		deliveryTime, err := q.SetDeliveryTime(ctx, params)
+		if err != nil {
 			api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
 			return &apperror.APPError{
 				Message: "Error setting delivery time",
@@ -126,45 +148,24 @@ func SetDeliveryTime(w http.ResponseWriter, r *http.Request) error {
 				Err:     err,
 			}
 		}
-	}
 
-	hour, minute, amPm, err := parseTime(dt)
-	if err != nil {
-		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
-		return &apperror.APPError{
-			Message: "Error parsing time",
-			Code:    500,
-			Err:     err,
+		microsecondsSinceMidnight := deliveryTime.DeliveryTime.Microseconds
+
+		// Create new time by adding microseconds to midnight
+		newTime := midnight.Add(time.Duration(microsecondsSinceMidnight) * time.Microsecond)
+
+		// Format the time in 24-hour format
+		timeStr := newTime.Format("15:04")
+
+		dt := setDeliveryTimesResponse{
+			ID:           deliveryTime.ID,
+			DeliveryTime: timeStr,
 		}
+
+		deleveryTimes = append(deleveryTimes, dt)
 	}
 
-	res := deliveryTime{
-		ID:      dt.ID,
-		Hour:    hour,
-		Minutes: minute,
-		AmPm:    amPm,
-	}
-
-	api.ReturnResponse(w, 200, res, false, "")
+	api.ReturnResponse(w, 200, deleveryTimes, false, "")
 
 	return nil
-}
-
-func parseTime(dt sqlc.Deliverytime) (string, string, string, error) {
-	t, err := time.Parse("03:04 pm", dt.DeliveryTime)
-	if err != nil {
-		return "", "", "", err
-	}
-
-	// Extract hour, minute, and am/pm
-	hour := fmt.Sprintf("%02d", t.Hour())     // Ensure hour is two digits
-	minute := fmt.Sprintf("%02d", t.Minute()) // Ensure minute is two digits
-	amPm := strings.ToLower(t.Format("pm"))
-
-	// Convert to 12-hour format
-	if t.Hour() > 12 {
-		hour = fmt.Sprintf("%02d", t.Hour()-12)
-	}
-
-	return hour, minute, amPm, nil
 }

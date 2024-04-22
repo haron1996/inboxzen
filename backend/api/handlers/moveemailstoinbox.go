@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
-	"github.com/charmbracelet/log"
 	"github.com/haron1996/inboxzen/api"
 	"github.com/haron1996/inboxzen/apperror"
 	"github.com/haron1996/inboxzen/messages"
@@ -88,80 +88,96 @@ func MoveEmailsToInbox(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	log.Infof("Delivery times: %v", times)
+	for _, t := range times {
+		microsecondsSinceMidnight := t.DeliveryTime.Microseconds // Example microseconds since midnight
 
-	srv, err := utils.ConstructGmailService(ctx, q, userID, email)
-	if err != nil {
-		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
-		return &apperror.APPError{
-			Message: "Error constructing gmail service",
-			Code:    500,
-			Err:     err,
-		}
-	}
+		// Get midnight of the current day
+		now := time.Now()
 
-	user := "me"
+		midnight := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 
-	listLabelsResponse, err := srv.Users.Labels.List(user).Do()
-	if err != nil {
-		return err
-	}
+		// Create new time by adding microseconds to midnight
+		timeFromDB := midnight.Add(time.Duration(microsecondsSinceMidnight) * time.Microsecond)
 
-	customLabelName := c.HoldLabel
+		moveEmailToInbox := time.Now().Unix() == timeFromDB.Unix() || time.Now().After(timeFromDB) && time.Since(timeFromDB) <= 1*time.Minute
 
-	var customLabelID string
-
-	for _, label := range listLabelsResponse.Labels {
-		if label.Name == customLabelName {
-			customLabelID = label.Id
-			break
-		}
-	}
-
-	query := fmt.Sprintf("label:%s", customLabelName)
-
-	var allMessages []*gmail.Message
-
-	listMessagesResponse, err := srv.Users.Messages.List(user).Q(query).Do()
-	if err != nil {
-		api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
-		return &apperror.APPError{
-			Message: "Error getting messages",
-			Code:    500,
-			Err:     err,
-		}
-	}
-
-	allMessages = append(allMessages, listMessagesResponse.Messages...)
-
-	for listMessagesResponse.NextPageToken != "" {
-		listMessagesResponse, err = srv.Users.Messages.List(user).PageToken(listMessagesResponse.NextPageToken).Q(query).Do()
-		if err != nil {
-			api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
-			return &apperror.APPError{
-				Message: "Error getting messages",
-				Code:    500,
-				Err:     err,
+		if moveEmailToInbox {
+			srv, err := utils.ConstructGmailService(ctx, q, userID, email)
+			if err != nil {
+				api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+				return &apperror.APPError{
+					Message: "Error constructing gmail service",
+					Code:    500,
+					Err:     err,
+				}
 			}
-		}
 
-		allMessages = append(allMessages, listMessagesResponse.Messages...)
-	}
+			user := "me"
 
-	for _, message := range allMessages {
-		modifyMessageRequest := &gmail.ModifyMessageRequest{
-			RemoveLabelIds: []string{customLabelID},
-			AddLabelIds:    []string{"INBOX"},
-		}
-
-		_, err = srv.Users.Messages.Modify(user, message.Id, modifyMessageRequest).Do()
-		if err != nil {
-			api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
-			return &apperror.APPError{
-				Message: "Error moving message to inbox",
-				Code:    500,
-				Err:     err,
+			listLabelsResponse, err := srv.Users.Labels.List(user).Do()
+			if err != nil {
+				return err
 			}
+
+			customLabelName := c.HoldLabel
+
+			var customLabelID string
+
+			for _, label := range listLabelsResponse.Labels {
+				if label.Name == customLabelName {
+					customLabelID = label.Id
+					break
+				}
+			}
+
+			query := fmt.Sprintf("label:%s", customLabelName)
+
+			var allMessages []*gmail.Message
+
+			listMessagesResponse, err := srv.Users.Messages.List(user).Q(query).Do()
+			if err != nil {
+				api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+				return &apperror.APPError{
+					Message: "Error getting messages",
+					Code:    500,
+					Err:     err,
+				}
+			}
+
+			allMessages = append(allMessages, listMessagesResponse.Messages...)
+
+			for listMessagesResponse.NextPageToken != "" {
+				listMessagesResponse, err = srv.Users.Messages.List(user).PageToken(listMessagesResponse.NextPageToken).Q(query).Do()
+				if err != nil {
+					api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+					return &apperror.APPError{
+						Message: "Error getting messages",
+						Code:    500,
+						Err:     err,
+					}
+				}
+
+				allMessages = append(allMessages, listMessagesResponse.Messages...)
+			}
+
+			for _, message := range allMessages {
+				modifyMessageRequest := &gmail.ModifyMessageRequest{
+					RemoveLabelIds: []string{customLabelID},
+					AddLabelIds:    []string{"INBOX"},
+				}
+
+				_, err = srv.Users.Messages.Modify(user, message.Id, modifyMessageRequest).Do()
+				if err != nil {
+					api.ReturnResponse(w, 500, nil, true, messages.ErrInternalServer)
+					return &apperror.APPError{
+						Message: "Error moving message to inbox",
+						Code:    500,
+						Err:     err,
+					}
+				}
+			}
+
+			api.ReturnResponse(w, 200, nil, true, messages.OK)
 		}
 	}
 

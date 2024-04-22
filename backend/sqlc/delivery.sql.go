@@ -7,22 +7,17 @@ package sqlc
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const deleteDeliveryTime = `-- name: DeleteDeliveryTime :one
-delete from deliveryTime where id = $1 returning id, delivery_time, date_added, email_id
+const deleteDeliveryTimes = `-- name: DeleteDeliveryTimes :exec
+delete from deliveryTime where email_id = $1 returning id, delivery_time, date_added, email_id
 `
 
-func (q *Queries) DeleteDeliveryTime(ctx context.Context, id string) (Deliverytime, error) {
-	row := q.db.QueryRow(ctx, deleteDeliveryTime, id)
-	var i Deliverytime
-	err := row.Scan(
-		&i.ID,
-		&i.DeliveryTime,
-		&i.DateAdded,
-		&i.EmailID,
-	)
-	return i, err
+func (q *Queries) DeleteDeliveryTimes(ctx context.Context, emailID string) error {
+	_, err := q.db.Exec(ctx, deleteDeliveryTimes, emailID)
+	return err
 }
 
 const getDeliveryTimes = `-- name: GetDeliveryTimes :many
@@ -61,9 +56,9 @@ returning id, delivery_time, date_added, email_id
 `
 
 type SetDeliveryTimeParams struct {
-	ID           string `json:"id"`
-	DeliveryTime string `json:"delivery_time"`
-	EmailID      string `json:"email_id"`
+	ID           string      `json:"id"`
+	DeliveryTime pgtype.Time `json:"delivery_time"`
+	EmailID      string      `json:"email_id"`
 }
 
 func (q *Queries) SetDeliveryTime(ctx context.Context, arg SetDeliveryTimeParams) (Deliverytime, error) {
